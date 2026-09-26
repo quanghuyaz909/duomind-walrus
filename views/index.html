@@ -248,13 +248,18 @@
       forgotPassword: "Forgot password?",
       wrongPassword: "Wrong password.",
       authError: "Something went wrong, try again.",
-      forgotUsernamePrompt: "Your username:",
-      forgotNewPasswordPrompt: "New password:",
-      forgotCodePrompt: "Get a code by sending /link to the bot on Telegram, then paste it here:",
-      passwordResetDone: "Password reset. Signing you in with it now - hit Continue.",
+      forgotIntro: "Reset your password - 4 quick steps:\n\n1. Enter your username\n2. Choose a new password\n3. Open Telegram and message the bot\n4. Paste the code it sends you\n\nThis only works if you attached Telegram as recovery before forgetting your password. Continue?",
+      forgotStep1Username: "Step 1 of 4 - Your username:",
+      forgotStep2NewPassword: "Step 2 of 4 - Choose a new password:",
+      forgotStep3GoToTelegram: "Step 3 of 4 - Now open Telegram, find the DuoMind bot, and send it:\n\n/link\n\nIt will reply with a short code. Copy that code, then click OK here.",
+      forgotStep4PasteCode: "Step 4 of 4 - Paste the code the bot sent you:",
+      passwordResetDone: "Done! Your password has been reset. Click Continue to sign in with it.",
       attachRecovery: "🔐 Add recovery",
-      attachPasswordPrompt: "Confirm your password for {name}:",
-      attachDone: "Telegram attached. If you ever forget your password, use \"Forgot password?\" with a fresh /link code.",
+      attachIntro: "Attach Telegram so you can recover this account later - 3 quick steps:\n\n1. Confirm your current password\n2. Open Telegram and message the bot\n3. Paste the code it sends you\n\nContinue?",
+      attachStep1Password: "Step 1 of 3 - Confirm your current password for {name}:",
+      attachStep2GoToTelegram: "Step 2 of 3 - Now open Telegram, find the DuoMind bot, and send it:\n\n/link\n\nIt will reply with a short code. Copy that code, then click OK here.",
+      attachStep3PasteCode: "Step 3 of 3 - Paste the code the bot sent you:",
+      attachDone: "Done! Telegram is now attached. If you ever forget your password, use \"Forgot password?\" with a fresh /link code.",
       linkPrompt: "Paste the code the bot sent you after /link:",
       linkInvalid: "That code is invalid or expired. Send /link to the bot again.",
       notifyEnabled: "Notifications on. You'll get a nudge before a birthday or anniversary.",
@@ -292,13 +297,18 @@
       forgotPassword: "Quên mật khẩu?",
       wrongPassword: "Sai mật khẩu.",
       authError: "Có lỗi xảy ra, thử lại nhé.",
-      forgotUsernamePrompt: "Username của bạn:",
-      forgotNewPasswordPrompt: "Mật khẩu mới:",
-      forgotCodePrompt: "Lấy mã bằng cách gõ /link với bot trên Telegram, rồi dán vào đây:",
-      passwordResetDone: "Đã đặt lại mật khẩu. Bấm Tiếp tục để đăng nhập bằng mật khẩu mới.",
+      forgotIntro: "Đặt lại mật khẩu - 4 bước đơn giản:\n\n1. Nhập username của bạn\n2. Chọn mật khẩu mới\n3. Mở Telegram, nhắn cho bot\n4. Dán mã bot gửi vào đây\n\nCách này chỉ dùng được nếu trước đó bạn đã gắn Telegram làm khôi phục. Tiếp tục?",
+      forgotStep1Username: "Bước 1/4 - Username của bạn:",
+      forgotStep2NewPassword: "Bước 2/4 - Chọn mật khẩu mới:",
+      forgotStep3GoToTelegram: "Bước 3/4 - Giờ mở Telegram, tìm bot DuoMind, nhắn cho nó dòng này:\n\n/link\n\nBot sẽ trả về 1 mã ngắn. Copy mã đó, rồi bấm OK ở đây.",
+      forgotStep4PasteCode: "Bước 4/4 - Dán mã bot vừa gửi vào đây:",
+      passwordResetDone: "Xong! Mật khẩu đã được đặt lại. Bấm Tiếp tục để đăng nhập bằng mật khẩu mới.",
       attachRecovery: "🔐 Thêm khôi phục",
-      attachPasswordPrompt: "Xác nhận mật khẩu cho {name}:",
-      attachDone: "Đã gắn Telegram. Nếu sau này quên mật khẩu, dùng \"Quên mật khẩu?\" với mã /link mới.",
+      attachIntro: "Gắn Telegram để sau này có thể khôi phục tài khoản - 3 bước đơn giản:\n\n1. Xác nhận mật khẩu hiện tại\n2. Mở Telegram, nhắn cho bot\n3. Dán mã bot gửi vào đây\n\nTiếp tục?",
+      attachStep1Password: "Bước 1/3 - Xác nhận mật khẩu hiện tại cho {name}:",
+      attachStep2GoToTelegram: "Bước 2/3 - Giờ mở Telegram, tìm bot DuoMind, nhắn cho nó dòng này:\n\n/link\n\nBot sẽ trả về 1 mã ngắn. Copy mã đó, rồi bấm OK ở đây.",
+      attachStep3PasteCode: "Bước 3/3 - Dán mã bot vừa gửi vào đây:",
+      attachDone: "Xong! Đã gắn Telegram. Nếu sau này quên mật khẩu, dùng \"Quên mật khẩu?\" với mã /link mới.",
       linkPrompt: "Dán mã bot gửi cho bạn sau khi gõ /link:",
       linkInvalid: "Mã không hợp lệ hoặc đã hết hạn. Gõ /link lại với bot nhé.",
       notifyEnabled: "Đã bật thông báo. Bạn sẽ được nhắc trước khi tới sinh nhật/kỷ niệm.",
@@ -756,11 +766,13 @@
   });
 
   forgotPasswordBtn.addEventListener("click", async () => {
-    const username = window.prompt(t("forgotUsernamePrompt"), usernameInput.value.trim());
+    if (!window.confirm(t("forgotIntro"))) return;
+    const username = window.prompt(t("forgotStep1Username"), usernameInput.value.trim());
     if (!username || !username.trim()) return;
-    const newPassword = window.prompt(t("forgotNewPasswordPrompt"));
+    const newPassword = window.prompt(t("forgotStep2NewPassword"));
     if (!newPassword) return;
-    const code = window.prompt(t("forgotCodePrompt"));
+    if (!window.confirm(t("forgotStep3GoToTelegram"))) return;
+    const code = window.prompt(t("forgotStep4PasteCode"));
     if (!code || !code.trim()) return;
     try {
       const res = await fetch("/api/account/reset-password", {
@@ -782,9 +794,11 @@
   });
 
   attachRecoveryBtn.addEventListener("click", async () => {
-    const password = window.prompt(t("attachPasswordPrompt", { name: currentDisplayName }));
+    if (!window.confirm(t("attachIntro"))) return;
+    const password = window.prompt(t("attachStep1Password", { name: currentDisplayName }));
     if (!password) return;
-    const code = window.prompt(t("linkPrompt"));
+    if (!window.confirm(t("attachStep2GoToTelegram"))) return;
+    const code = window.prompt(t("attachStep3PasteCode"));
     if (!code || !code.trim()) return;
     try {
       const res = await fetch("/api/account/attach-telegram", {
