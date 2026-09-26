@@ -11,6 +11,11 @@ gift ideas - across sessions, permanently, on
 - **Cross-device on the web:** sign in with any username + password (no account
   database - see "Web identity" below) or use Telegram, where your Telegram account
   already carries across devices for free.
+- **Telegram <-> web linking:** send `/link` to the bot to get a short-lived code;
+  paste it into the web sign-in screen to point the web app at the exact same Walrus
+  Memory namespace as your Telegram chats - one shared memory, two channels.
+- **7 languages:** English, Vietnamese, Chinese, Spanish, French, Japanese, Korean -
+  auto-detected from the browser, switchable anytime from the header.
 - **Reminders:** a daily job scans each Telegram user's memory for birthdays and
   anniversaries coming up in the next few days and proactively messages them.
 
@@ -116,6 +121,8 @@ src/llm.ts        Groq client + system prompt
 src/extract.ts    Extracts durable facts from a message via the LLM
 src/chat.ts       recall -> generate -> learn pipeline (shared by both channels)
 src/reminders.ts  Daily sweep: finds upcoming dates in memory, messages Telegram users
+src/link.ts       Stateless HMAC codes linking a web session to a Telegram namespace
+src/bot-handlers.ts  Shared Telegram command/message handlers (used by webhook + polling)
 src/app.ts        Hono API (/api/chat, /api/cron/reminders, ...) - shared by local + Vercel
 src/web.ts        Local web server entrypoint (serves public/ + the API)
 src/telegram.ts   Telegram bot entrypoint (grammY, long polling)
