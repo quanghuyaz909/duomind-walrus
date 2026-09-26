@@ -8,6 +8,11 @@ gift ideas - across sessions, permanently, on
 - **Memory:** [`@mysten-incubation/memwal`](https://github.com/MystenLabs/MemWal), mainnet relayer.
 - **Interface:** both a web chat UI and a Telegram bot, sharing the same recall ->
   generate -> learn pipeline and the same Walrus Memory namespace per user.
+- **Cross-device on the web:** sign in with any username + password (no account
+  database - see "Web identity" below) or use Telegram, where your Telegram account
+  already carries across devices for free.
+- **Reminders:** a daily job scans each Telegram user's memory for birthdays and
+  anniversaries coming up in the next few days and proactively messages them.
 
 ## How memory works
 
@@ -22,6 +27,18 @@ Every message runs a recall -> generate -> learn pipeline:
 3. **Learn** - after replying, durable facts (a birthday, a preference, a promise, a
    plan) are extracted and written as encrypted blobs to Walrus in the background; the
    user never waits on storage.
+
+## Web identity: username + password with no account database
+
+The web UI's "sign in" doesn't check credentials against anything stored server-side.
+The browser derives a Walrus Memory namespace as `acct-<sha256(username:password)>`
+(client-side, via Web Crypto) and sends only that derived id to the API - the actual
+password never leaves the browser. The same username + password always derives the
+same id, so signing in with them on a different device or browser loads the same
+memory. There's no "forgot password" because there's nothing to reset: a different
+password just derives a different (empty) namespace. This trades typical account
+security (no real authentication, no recovery) for zero infrastructure - reasonable
+for a low-stakes personal memory, not appropriate for anything sensitive.
 
 ## Setup
 
@@ -94,16 +111,19 @@ both against the same token simultaneously. Switch back to local polling by call
 ## Project structure
 
 ```
-src/memory.ts    Walrus Memory (memwal) wrapper - remember/recall, per-user namespace
-src/llm.ts       Groq client + system prompt
-src/extract.ts   Extracts durable facts from a message via the LLM
-src/chat.ts      recall -> generate -> learn pipeline (shared by both channels)
-src/app.ts       Hono API (/api/chat) - shared by the local web server and Vercel
-src/web.ts       Local web server entrypoint (serves public/ + the API)
-src/telegram.ts  Telegram bot entrypoint (grammY, long polling)
-src/check.ts     Credential/round-trip verification script
-public/index.html  Web chat UI
-api/index.ts     Vercel serverless entrypoint for the same Hono app
+src/memory.ts     Walrus Memory (memwal) wrapper - remember/recall, per-user namespace
+src/llm.ts        Groq client + system prompt
+src/extract.ts    Extracts durable facts from a message via the LLM
+src/chat.ts       recall -> generate -> learn pipeline (shared by both channels)
+src/reminders.ts  Daily sweep: finds upcoming dates in memory, messages Telegram users
+src/app.ts        Hono API (/api/chat, /api/cron/reminders, ...) - shared by local + Vercel
+src/web.ts        Local web server entrypoint (serves public/ + the API)
+src/telegram.ts   Telegram bot entrypoint (grammY, long polling)
+src/set-webhook.ts  One-off script to point Telegram at a deployed webhook URL
+src/check.ts      Credential/round-trip verification script
+public/index.html   Web chat UI (username/password sign-in + chat)
+api/index.ts      Vercel serverless entrypoint for the same Hono app
+vercel.json       Rewrites, function config, and the daily reminders cron schedule
 ```
 
 ## Notes on the Walrus Sessions 8 requirements

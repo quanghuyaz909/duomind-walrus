@@ -15,18 +15,48 @@
   header {
     padding: 14px 20px; border-bottom: 1px solid #1f2933;
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    flex-wrap: wrap;
   }
   .brand { display: flex; align-items: baseline; gap: 10px; }
   header h1 { font-size: 16px; margin: 0; }
   header .tag { font-size: 12px; color: #8b949e; }
+  header .right { display: flex; align-items: center; gap: 10px; }
   header a.src {
     font-size: 12px; color: #8b949e; text-decoration: none; border: 1px solid #1f2933;
     padding: 6px 10px; border-radius: 6px;
   }
   header a.src:hover { color: #e6edf3; border-color: #30363d; }
+  #whoami { font-size: 12px; color: #8b949e; }
+  #logoutBtn {
+    font-size: 12px; padding: 6px 10px; background: #161b22; color: #b7c0c9;
+    border: 1px solid #1f2933; border-radius: 6px; cursor: pointer;
+  }
+  #logoutBtn:hover { color: #e6edf3; border-color: #30363d; }
+
+  #authScreen {
+    flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  #authBox {
+    width: 100%; max-width: 340px; background: #10151c; border: 1px solid #1f2933;
+    border-radius: 12px; padding: 24px;
+  }
+  #authBox h2 { margin: 0 0 6px; font-size: 18px; }
+  #authBox p { margin: 0 0 18px; font-size: 13px; color: #8b949e; line-height: 1.5; }
+  #authBox label { display: block; font-size: 12px; color: #8b949e; margin: 12px 0 4px; }
+  #authBox input {
+    width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #1f2933;
+    background: #0d1117; color: #e6edf3; font-size: 14px;
+  }
+  #authBox button {
+    width: 100%; margin-top: 18px; padding: 11px; border-radius: 8px; border: none;
+    background: #1f6feb; color: white; font-weight: 600; cursor: pointer; font-size: 14px;
+  }
+  #authScreen.hidden, #appScreen.hidden { display: none; }
+
+  #appScreen { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
   #intro {
-    margin: 16px 20px 0; padding: 14px 16px; border-radius: 10px;
+    margin: 12px 20px 0; padding: 14px 16px; border-radius: 10px;
     background: #10151c; border: 1px solid #1f2933; font-size: 13px; color: #b7c0c9;
     display: flex; flex-wrap: wrap; gap: 18px;
   }
@@ -51,16 +81,16 @@
   .user { align-self: flex-end; background: #1f6feb; color: white; }
   .bot { align-self: flex-start; background: #161b22; border: 1px solid #1f2933; }
   .bot.pending { color: #8b949e; font-style: italic; }
-  form { display: flex; gap: 8px; padding: 16px 20px; border-top: 1px solid #1f2933; }
-  input {
+  form#chatForm { display: flex; gap: 8px; padding: 16px 20px; border-top: 1px solid #1f2933; }
+  #chatForm input {
     flex: 1; padding: 12px 14px; border-radius: 8px; border: 1px solid #1f2933;
     background: #0d1117; color: #e6edf3; font-size: 14px;
   }
-  button {
+  #chatForm button {
     padding: 12px 18px; border-radius: 8px; border: none;
     background: #1f6feb; color: white; font-weight: 600; cursor: pointer;
   }
-  button:disabled { opacity: 0.5; cursor: default; }
+  #chatForm button:disabled { opacity: 0.5; cursor: default; }
 
   @media (max-width: 480px) {
     #intro { flex-direction: column; gap: 10px; }
@@ -73,47 +103,132 @@
     <h1>DuoMind</h1>
     <span class="tag">your relationship's memory</span>
   </div>
-  <a class="src" href="https://github.com/quanghuyaz909/duomind-walrus" target="_blank" rel="noopener">Source</a>
+  <div class="right">
+    <span id="whoami" hidden></span>
+    <button id="logoutBtn" hidden>Switch account</button>
+    <a class="src" href="https://github.com/quanghuyaz909/duomind-walrus" target="_blank" rel="noopener">Source</a>
+  </div>
 </header>
 
-<div id="intro">
-  <div class="step">
-    <span class="num">1</span>
-    <span><strong>Tell it about your partner</strong> - birthday, likes, plans, gift ideas, anything worth remembering.</span>
+<div id="authScreen">
+  <div id="authBox">
+    <h2>Sign in</h2>
+    <p>Make up any username and password. There's no account database - the same
+       username + password always unlocks the same memory, on any device. No email,
+       no OTP, nothing to reset if you forget it (a different password just starts
+       fresh memory).</p>
+    <form id="authForm">
+      <label for="username">Username</label>
+      <input id="username" autocomplete="username" required />
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required />
+      <button type="submit">Continue</button>
+    </form>
   </div>
-  <div class="step">
-    <span class="num">2</span>
-    <span><strong>Come back anytime</strong> - even next week, on a different device. It still remembers, permanently.</span>
-  </div>
-  <div class="step">
-    <span class="num">3</span>
-    <span><strong>Ask it for help</strong> - a gift idea, a date idea - and it grounds the answer in what it actually knows about your relationship.</span>
-  </div>
-  <button class="dismiss" onclick="document.getElementById('intro').classList.add('hidden')">Got it ✕</button>
 </div>
 
-<div id="log"></div>
-<form id="form">
-  <input id="input" autocomplete="off" placeholder="Tell me about your partner, a plan, a date idea..." />
-  <button id="send">Send</button>
-</form>
+<div id="appScreen" class="hidden">
+  <div id="intro">
+    <div class="step">
+      <span class="num">1</span>
+      <span><strong>Tell it about your partner</strong> - birthday, likes, plans, gift ideas, anything worth remembering.</span>
+    </div>
+    <div class="step">
+      <span class="num">2</span>
+      <span><strong>Come back anytime</strong> - sign in with the same username and password on any device to pick up the same memory.</span>
+    </div>
+    <div class="step">
+      <span class="num">3</span>
+      <span><strong>Ask it for help</strong> - a gift idea, a date idea - and it grounds the answer in what it actually knows about your relationship.</span>
+    </div>
+    <button class="dismiss" onclick="document.getElementById('intro').classList.add('hidden')">Got it X</button>
+  </div>
+
+  <div id="log"></div>
+  <form id="chatForm">
+    <input id="input" autocomplete="off" placeholder="Tell me about your partner, a plan, a date idea..." />
+    <button id="send">Send</button>
+  </form>
+</div>
+
 <script>
+  const authScreen = document.getElementById("authScreen");
+  const appScreen = document.getElementById("appScreen");
+  const authForm = document.getElementById("authForm");
+  const usernameInput = document.getElementById("username");
+  const passwordInput = document.getElementById("password");
+  const whoami = document.getElementById("whoami");
+  const logoutBtn = document.getElementById("logoutBtn");
+
   const log = document.getElementById("log");
-  const form = document.getElementById("form");
+  const chatForm = document.getElementById("chatForm");
   const input = document.getElementById("input");
   const sendBtn = document.getElementById("send");
   const intro = document.getElementById("intro");
 
-  function getUserId() {
-    let id = null;
-    try { id = localStorage.getItem("duomind-user-id"); } catch (e) {}
-    if (!id) {
-      id = "web-" + crypto.randomUUID();
-      try { localStorage.setItem("duomind-user-id", id); } catch (e) {}
-    }
-    return id;
+  let userId = null;
+
+  async function deriveUserId(username, password) {
+    const enc = new TextEncoder().encode("duomind-v1:" + username.trim().toLowerCase() + ":" + password);
+    const hashBuf = await crypto.subtle.digest("SHA-256", enc);
+    const hashArr = Array.from(new Uint8Array(hashBuf));
+    const hex = hashArr.map((b) => b.toString(16).padStart(2, "0")).join("");
+    return "acct-" + hex.slice(0, 24);
   }
-  const userId = getUserId();
+
+  function showApp(username) {
+    authScreen.classList.add("hidden");
+    appScreen.classList.remove("hidden");
+    whoami.hidden = false;
+    logoutBtn.hidden = false;
+    whoami.textContent = "Signed in as " + username;
+    log.innerHTML = "";
+    addMessage("Tell me about your partner - their birthday, likes, plans, gift ideas - I'll remember it across sessions, permanently, on Walrus.", "bot");
+    input.focus();
+  }
+
+  function showAuth() {
+    appScreen.classList.add("hidden");
+    authScreen.classList.remove("hidden");
+    whoami.hidden = true;
+    logoutBtn.hidden = true;
+    passwordInput.value = "";
+  }
+
+  authForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    if (!username || !password) return;
+    userId = await deriveUserId(username, password);
+    try {
+      localStorage.setItem("duomind-username", username);
+      sessionStorage.setItem("duomind-session-id", userId);
+    } catch (e2) {}
+    showApp(username);
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    userId = null;
+    try {
+      sessionStorage.removeItem("duomind-session-id");
+    } catch (e) {}
+    showAuth();
+  });
+
+  (function tryResumeSession() {
+    let savedUsername = null;
+    let savedSession = null;
+    try {
+      savedUsername = localStorage.getItem("duomind-username");
+      savedSession = sessionStorage.getItem("duomind-session-id");
+    } catch (e) {}
+    if (savedUsername) usernameInput.value = savedUsername;
+    if (savedUsername && savedSession) {
+      userId = savedSession;
+      showApp(savedUsername);
+    }
+  })();
 
   function addMessage(text, role) {
     const el = document.createElement("div");
@@ -124,10 +239,9 @@
     return el;
   }
 
-  addMessage("Tell me about your partner - their birthday, likes, plans, gift ideas - I'll remember it across sessions, permanently, on Walrus.", "bot");
-
-  form.addEventListener("submit", async (e) => {
+  chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!userId) return;
     const text = input.value.trim();
     if (!text) return;
     input.value = "";

@@ -4,6 +4,7 @@ import { Bot, webhookCallback } from "grammy";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { handleMessage } from "./chat.js";
+import { runReminderSweep } from "./reminders.js";
 
 export const app = new Hono();
 
@@ -71,3 +72,21 @@ app.post("/api/chat", async (c) => {
 });
 
 app.get("/api/health", (c) => c.json({ ok: true }));
+
+// Daily sweep: checks every Telegram user's memory for birthdays/anniversaries
+// coming up in the next 3 days and proactively messages them. Triggered by
+// Vercel Cron (see vercel.json) or manually with the right secret.
+app.get("/api/cron/reminders", async (c) => {
+  const secret = process.env.CRON_SECRET;
+  const auth = c.req.header("authorization");
+  if (secret && auth !== `Bearer ${secret}`) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+  try {
+    const result = await runReminderSweep();
+    return c.json({ ok: true, ...result });
+  } catch (err) {
+    console.error("[reminders] sweep failed:", err);
+    return c.json({ error: "Reminder sweep failed" }, 500);
+  }
+});

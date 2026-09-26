@@ -7,5 +7,8 @@
     "api/index.ts": {
       "includeFiles": "public/**"
     }
-  }
+  },
+  "crons": [
+    { "path": "/api/cron/reminders", "schedule": "0 9 * * *" }
+  ]
 }
