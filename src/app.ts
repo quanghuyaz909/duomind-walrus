@@ -49,8 +49,8 @@ app.post("/api/chat", async (c) => {
     return c.json({ error: "userId and message are required" }, 400);
   }
   try {
-    const reply = await handleMessage(body.userId, body.message);
-    return c.json({ reply });
+    const replies = await handleMessage(body.userId, body.message);
+    return c.json({ replies });
   } catch (err) {
     console.error(err);
     return c.json({ error: "Failed to reach memory or the model." }, 500);

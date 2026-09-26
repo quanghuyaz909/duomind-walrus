@@ -2,6 +2,7 @@ import { Bot, InlineKeyboard } from "grammy";
 import { handleMessage } from "./chat.js";
 import { generateLinkCode } from "./link.js";
 import { SUPPORTED_LANGS, getPreferredLanguage, setPreferredLanguage, greetingFor } from "./lang.js";
+import { QUICK_ACTION_KEYS, quickActionHeader, quickActionLabel, quickActionPrompt } from "./quick-actions.js";
 
 const WEB_APP_URL = process.env.WEB_APP_URL || "https://walrus-memory-chatbot.vercel.app";
 
@@ -15,6 +16,29 @@ function languageKeyboard(): InlineKeyboard {
   return kb;
 }
 
+function quickActionsKeyboard(lang: string): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  QUICK_ACTION_KEYS.forEach((key, i) => {
+    kb.text(quickActionLabel(key, lang), `qa:${key}`);
+    if (i % 2 === 1) kb.row();
+  });
+  return kb;
+}
+
+async function replyWithHandledMessage(ctx: any, userId: string, text: string, lang: string) {
+  await ctx.replyWithChatAction("typing");
+  try {
+    const chunks = await handleMessage(userId, text, lang);
+    for (const chunk of chunks) {
+      if (chunk) await ctx.reply(chunk);
+    }
+    if (chunks.every((c) => !c)) await ctx.reply("(no response)");
+  } catch (err) {
+    console.error(err);
+    await ctx.reply("Something went wrong reaching memory or the model. Try again in a bit.");
+  }
+}
+
 export function registerBotHandlers(bot: Bot): void {
   bot.command("start", (ctx) =>
     ctx.reply("🌐 Choose your language / Chọn ngôn ngữ / 选择语言 / 言語を選択:", {
@@ -22,21 +46,41 @@ export function registerBotHandlers(bot: Bot): void {
     })
   );
 
+  bot.command("ideas", async (ctx) => {
+    if (!ctx.from) return;
+    const userId = String(ctx.from.id);
+    const lang = await getPreferredLanguage(userId);
+    await ctx.reply(quickActionHeader(lang), { reply_markup: quickActionsKeyboard(lang) });
+  });
+
   bot.on("callback_query:data", async (ctx) => {
     const data = ctx.callbackQuery.data;
-    if (!data.startsWith("lang:")) return;
-    const code = data.slice("lang:".length);
-    if (!SUPPORTED_LANGS[code]) return;
     const userId = String(ctx.from.id);
-    await ctx.answerCallbackQuery();
-    try {
-      await setPreferredLanguage(userId, code);
-    } catch (err) {
-      console.error("[lang] failed to save preference:", err);
+
+    if (data.startsWith("lang:")) {
+      const code = data.slice("lang:".length);
+      if (!SUPPORTED_LANGS[code]) return;
+      await ctx.answerCallbackQuery();
+      try {
+        await setPreferredLanguage(userId, code);
+      } catch (err) {
+        console.error("[lang] failed to save preference:", err);
+      }
+      await ctx.reply(`${greetingFor(code)}\n\nWeb app: ${WEB_APP_URL}\n/link - ${linkHint(code)}`);
+      await ctx.reply(quickActionHeader(code), { reply_markup: quickActionsKeyboard(code) });
+      return;
     }
-    await ctx.reply(
-      `${greetingFor(code)}\n\nWeb app: ${WEB_APP_URL}\n/link - ${linkHint(code)}`
-    );
+
+    if (data.startsWith("qa:")) {
+      const key = data.slice("qa:".length);
+      await ctx.answerCallbackQuery();
+      const lang = await getPreferredLanguage(userId);
+      const prompt = quickActionPrompt(key, lang);
+      if (!prompt) return;
+      await ctx.reply(prompt);
+      await replyWithHandledMessage(ctx, userId, prompt, lang);
+      return;
+    }
   });
 
   bot.command("link", (ctx) => {
@@ -50,15 +94,8 @@ export function registerBotHandlers(bot: Bot): void {
 
   bot.on("message:text", async (ctx) => {
     const userId = String(ctx.from.id);
-    await ctx.replyWithChatAction("typing");
-    try {
-      const languageCode = await getPreferredLanguage(userId);
-      const reply = await handleMessage(userId, ctx.message.text, languageCode);
-      await ctx.reply(reply || "(no response)");
-    } catch (err) {
-      console.error(err);
-      await ctx.reply("Something went wrong reaching memory or the model. Try again in a bit.");
-    }
+    const languageCode = await getPreferredLanguage(userId);
+    await replyWithHandledMessage(ctx, userId, ctx.message.text, languageCode);
   });
 
   bot.catch((err) => console.error("[bot error]", err));

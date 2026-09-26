@@ -66,7 +66,7 @@ export async function runReminderSweep(): Promise<{ checked: number; sent: numbe
       "{{memories}}",
       memories.map((m) => `- ${m.text}`).join("\n")
     );
-    const reply = await chatComplete([{ role: "user", content: prompt }]);
+    const reply = await chatComplete([{ role: "user", content: prompt }], 200);
     if (reply.trim().toUpperCase().startsWith("NONE")) continue;
 
     await bot.api.sendMessage(chatId, reply.trim());

@@ -1,9 +1,13 @@
 import { recallMemories, recallProfile, rememberFact } from "./memory.js";
-import { chatComplete, SYSTEM_PROMPT, todayContext } from "./llm.js";
+import { chatCompleteChunks, SYSTEM_PROMPT, todayContext } from "./llm.js";
 import { extractFacts } from "./extract.js";
 import { languageInstruction } from "./lang.js";
 
-export async function handleMessage(userId: string, message: string, languageCode?: string) {
+export async function handleMessage(
+  userId: string,
+  message: string,
+  languageCode?: string
+): Promise<string[]> {
   const [relevant, profile] = await Promise.all([
     recallMemories(userId, message),
     recallProfile(userId),
@@ -26,11 +30,11 @@ export async function handleMessage(userId: string, message: string, languageCod
   if (languageCode) messages.push({ role: "system", content: languageInstruction(languageCode) });
   messages.push({ role: "user", content: message });
 
-  const reply = await chatComplete(messages);
+  const chunks = await chatCompleteChunks(messages);
 
   extractFacts(message)
     .then((facts) => Promise.all(facts.map((fact) => rememberFact(userId, fact))))
     .catch((err) => console.error("[memory] failed to store facts:", err));
 
-  return reply;
+  return chunks;
 }

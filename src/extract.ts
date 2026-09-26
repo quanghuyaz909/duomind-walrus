@@ -15,7 +15,7 @@ Message: """${"{{message}}"}"""`;
 
 export async function extractFacts(message: string): Promise<string[]> {
   const prompt = EXTRACT_PROMPT.replace("{{today}}", todayContext()).replace("{{message}}", message);
-  const raw = await chatComplete([{ role: "user", content: prompt }]);
+  const raw = await chatComplete([{ role: "user", content: prompt }], 200);
   return raw
     .split("\n")
     .map((line) => line.replace(/^[-*\d.]+\s*/, "").trim())
