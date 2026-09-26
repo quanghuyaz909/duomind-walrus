@@ -1,0 +1,27 @@
+{
+  "name": "trademind-bot",
+  "version": "0.1.0",
+  "description": "Telegram crypto trading journal bot with persistent memory on Walrus Memory (MemWal)",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/telegram.ts",
+    "start": "tsx src/telegram.ts",
+    "web": "tsx src/web.ts",
+    "web:dev": "tsx watch src/web.ts",
+    "check": "tsx src/check.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.0",
+    "@mysten-incubation/memwal": "^0.1.8",
+    "dotenv": "^16.4.5",
+    "grammy": "^1.30.0",
+    "groq-sdk": "^0.7.0",
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.7.0"
+  }
+}
