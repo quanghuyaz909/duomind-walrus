@@ -1,4 +1,10 @@
-import { recallMemories, rememberFact } from "./memory.js";
+import { recallMemories, rememberFactAndWait } from "./memory.js";
+
+// Process-local cache bridging Walrus's write-lag: a preference just set via
+// setPreferredLanguage is readable from here immediately, before the
+// underlying blob has finished indexing and become recallable. Best-effort
+// only (cleared on cold start) - the durable source of truth is Walrus.
+const languageCache = new Map<string, string>();
 
 export const SUPPORTED_LANGS: Record<string, string> = {
   en: "English",
@@ -29,20 +35,26 @@ export function languageInstruction(code: string): string {
   return `Always reply in ${name} (language code: ${code}), regardless of what language the user writes in, unless they explicitly ask you to switch languages.`;
 }
 
-/** Stores the user's language choice as a durable memory fact. */
+/** Stores the user's language choice as a durable memory fact. Waits for the
+ * write to be indexed so the very next message already recalls correctly. */
 export async function setPreferredLanguage(userId: string, code: string): Promise<void> {
+  languageCache.set(userId, code);
   const name = SUPPORTED_LANGS[code] ?? code;
-  await rememberFact(userId, `User's preferred bot language is ${name} (code: ${code}).`);
+  await rememberFactAndWait(userId, `User's preferred bot language is ${name} (code: ${code}).`);
 }
 
 /** Recalls the user's stored language preference, defaulting to English. */
 export async function getPreferredLanguage(userId: string): Promise<string> {
+  const cached = languageCache.get(userId);
+  if (cached) return cached;
   try {
     const memories = await recallMemories(userId, "preferred bot language", 3);
     for (const m of memories) {
       const match = m.text.match(/code:\s*([a-z]{2})/i);
       if (match && SUPPORTED_LANGS[match[1].toLowerCase()]) {
-        return match[1].toLowerCase();
+        const code = match[1].toLowerCase();
+        languageCache.set(userId, code);
+        return code;
       }
     }
   } catch (err) {

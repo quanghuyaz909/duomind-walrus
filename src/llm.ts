@@ -11,6 +11,21 @@ actually remember about THIS user's relationship - never generic advice. If you 
 have relevant memory, say so plainly instead of inventing history. Be warm and concise,
 like a thoughtful friend who happens to have a perfect memory.`;
 
+/** Human-readable "today" anchor, used so the model can resolve relative
+ * dates ("next Monday", "in two weeks") into absolute ones. Anchored to
+ * Asia/Ho_Chi_Minh since that's this app's primary audience's timezone. */
+export function todayContext(): string {
+  const now = new Date();
+  const formatted = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(now);
+  return `Today is ${formatted} (Asia/Ho_Chi_Minh time). Resolve any relative date the user mentions (e.g. "next Monday", "in two weeks") into an absolute date based on this.`;
+}
+
 export async function chatComplete(messages: { role: "system" | "user" | "assistant"; content: string }[]) {
   const res = await groq.chat.completions.create({
     model,

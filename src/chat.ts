@@ -1,5 +1,5 @@
 import { recallMemories, recallProfile, rememberFact } from "./memory.js";
-import { chatComplete, SYSTEM_PROMPT } from "./llm.js";
+import { chatComplete, SYSTEM_PROMPT, todayContext } from "./llm.js";
 import { extractFacts } from "./extract.js";
 import { languageInstruction } from "./lang.js";
 
@@ -20,6 +20,7 @@ export async function handleMessage(userId: string, message: string, languageCod
 
   const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
     { role: "system", content: SYSTEM_PROMPT },
+    { role: "system", content: todayContext() },
     { role: "system", content: contextPrompt },
   ];
   if (languageCode) messages.push({ role: "system", content: languageInstruction(languageCode) });
