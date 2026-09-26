@@ -1,8 +1,9 @@
 import { recallMemories, recallProfile, rememberFact } from "./memory.js";
 import { chatComplete, SYSTEM_PROMPT } from "./llm.js";
 import { extractFacts } from "./extract.js";
+import { languageInstruction } from "./lang.js";
 
-export async function handleMessage(userId: string, message: string) {
+export async function handleMessage(userId: string, message: string, languageCode?: string) {
   const [relevant, profile] = await Promise.all([
     recallMemories(userId, message),
     recallProfile(userId),
@@ -17,11 +18,14 @@ export async function handleMessage(userId: string, message: string) {
     ? `What you remember about this user:\n${memoryBlock}`
     : "You don't have any memory of this user yet.";
 
-  const reply = await chatComplete([
+  const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
     { role: "system", content: SYSTEM_PROMPT },
     { role: "system", content: contextPrompt },
-    { role: "user", content: message },
-  ]);
+  ];
+  if (languageCode) messages.push({ role: "system", content: languageInstruction(languageCode) });
+  messages.push({ role: "user", content: message });
+
+  const reply = await chatComplete(messages);
 
   extractFacts(message)
     .then((facts) => Promise.all(facts.map((fact) => rememberFact(userId, fact))))
