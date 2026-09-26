@@ -5,6 +5,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { handleMessage } from "./chat.js";
 import { runReminderSweep } from "./reminders.js";
+import { registerBotHandlers } from "./bot-handlers.js";
+import { verifyLinkCode } from "./link.js";
 
 export const app = new Hono();
 
@@ -26,23 +28,7 @@ function getBot(): Bot {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
   bot = new Bot(token);
-  bot.command("start", (ctx) =>
-    ctx.reply(
-      "DuoMind here. Tell me about your partner - their birthday, likes, plans, gift ideas - I'll remember it across sessions, permanently, on Walrus."
-    )
-  );
-  bot.on("message:text", async (ctx) => {
-    const userId = String(ctx.from.id);
-    await ctx.replyWithChatAction("typing");
-    try {
-      const reply = await handleMessage(userId, ctx.message.text);
-      await ctx.reply(reply || "(no response)");
-    } catch (err) {
-      console.error(err);
-      await ctx.reply("Something went wrong reaching memory or the model. Try again in a bit.");
-    }
-  });
-  bot.catch((err) => console.error("[bot error]", err));
+  registerBotHandlers(bot);
   return bot;
 }
 
@@ -72,6 +58,17 @@ app.post("/api/chat", async (c) => {
 });
 
 app.get("/api/health", (c) => c.json({ ok: true }));
+
+// Links the web app to a Telegram user's exact memory namespace: the web
+// client trades a short-lived code (from the bot's /link command) for the
+// canonical userId, so both channels point at the same Walrus namespace.
+app.post("/api/link", async (c) => {
+  const body = await c.req.json<{ code?: string }>().catch(() => null);
+  if (!body?.code) return c.json({ error: "code is required" }, 400);
+  const chatId = verifyLinkCode(body.code);
+  if (!chatId) return c.json({ error: "Code is invalid or expired. Send /link to the bot again." }, 400);
+  return c.json({ userId: chatId });
+});
 
 // Daily sweep: checks every Telegram user's memory for birthdays/anniversaries
 // coming up in the next 3 days and proactively messages them. Triggered by

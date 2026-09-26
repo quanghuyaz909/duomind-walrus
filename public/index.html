@@ -15,7 +15,7 @@
   header {
     padding: 14px 20px; border-bottom: 1px solid #1f2933;
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: wrap; position: relative; z-index: 2;
   }
   .brand { display: flex; align-items: baseline; gap: 10px; }
   header h1 { font-size: 16px; margin: 0; }
@@ -32,25 +32,61 @@
     border: 1px solid #1f2933; border-radius: 6px; cursor: pointer;
   }
   #logoutBtn:hover { color: #e6edf3; border-color: #30363d; }
+  #langSelect {
+    font-size: 12px; padding: 6px 8px; background: #161b22; color: #b7c0c9;
+    border: 1px solid #1f2933; border-radius: 6px; cursor: pointer;
+  }
 
   #authScreen {
     flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px;
+    position: relative; overflow: hidden;
+    background:
+      radial-gradient(ellipse 700px 500px at 15% 15%, rgba(31,111,235,0.35), transparent 60%),
+      radial-gradient(ellipse 600px 500px at 85% 85%, rgba(120,80,235,0.28), transparent 60%),
+      radial-gradient(ellipse 900px 700px at 50% 50%, rgba(20,30,50,0.4), transparent 70%),
+      #0b0f14;
+  }
+  #authScreen::before, #authScreen::after {
+    content: ""; position: absolute; border-radius: 50%; filter: blur(60px);
+    opacity: 0.5; pointer-events: none;
+  }
+  #authScreen::before {
+    width: 340px; height: 340px; background: #1f6feb; top: -80px; left: -80px;
+  }
+  #authScreen::after {
+    width: 300px; height: 300px; background: #7c3aed; bottom: -80px; right: -60px;
   }
   #authBox {
-    width: 100%; max-width: 340px; background: #10151c; border: 1px solid #1f2933;
-    border-radius: 12px; padding: 24px;
+    position: relative; z-index: 1;
+    width: 100%; max-width: 360px;
+    background: rgba(16, 21, 28, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
-  #authBox h2 { margin: 0 0 6px; font-size: 18px; }
+  #authBox h2 { margin: 0 0 6px; font-size: 20px; }
   #authBox p { margin: 0 0 18px; font-size: 13px; color: #8b949e; line-height: 1.5; }
   #authBox label { display: block; font-size: 12px; color: #8b949e; margin: 12px 0 4px; }
-  #authBox input {
+  #authBox input[type="text"], #authBox input[type="password"] {
     width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #1f2933;
-    background: #0d1117; color: #e6edf3; font-size: 14px;
+    background: rgba(13,17,23,0.7); color: #e6edf3; font-size: 14px;
   }
+  #rememberRow {
+    display: flex; align-items: center; gap: 8px; margin-top: 14px;
+  }
+  #rememberRow input { width: 15px; height: 15px; accent-color: #1f6feb; }
+  #rememberRow label { margin: 0; font-size: 12px; color: #b7c0c9; cursor: pointer; }
   #authBox button {
     width: 100%; margin-top: 18px; padding: 11px; border-radius: 8px; border: none;
     background: #1f6feb; color: white; font-weight: 600; cursor: pointer; font-size: 14px;
   }
+  #linkTelegramBtn {
+    background: transparent !important; color: #8b949e !important; font-weight: 400 !important;
+    text-decoration: underline; margin-top: 12px !important; padding: 4px !important; font-size: 12px !important;
+  }
+  #linkTelegramBtn:hover { color: #e6edf3 !important; }
   #authScreen.hidden, #appScreen.hidden { display: none; }
 
   #appScreen { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -101,29 +137,32 @@
 <header>
   <div class="brand">
     <h1>DuoMind</h1>
-    <span class="tag">your relationship's memory</span>
+    <span class="tag" data-i18n="tag">your relationship's memory</span>
   </div>
   <div class="right">
     <span id="whoami" hidden></span>
-    <button id="logoutBtn" hidden>Switch account</button>
+    <button id="logoutBtn" hidden data-i18n="switchAccount">Switch account</button>
+    <select id="langSelect" aria-label="Language"></select>
     <a class="src" href="https://github.com/quanghuyaz909/duomind-walrus" target="_blank" rel="noopener">Source</a>
   </div>
 </header>
 
 <div id="authScreen">
   <div id="authBox">
-    <h2>Sign in</h2>
-    <p>Make up any username and password. There's no account database - the same
-       username + password always unlocks the same memory, on any device. No email,
-       no OTP, nothing to reset if you forget it (a different password just starts
-       fresh memory).</p>
+    <h2 data-i18n="signIn">Sign in</h2>
+    <p data-i18n="signInDesc">Make up any username and password. There's no account database - the same username + password always unlocks the same memory, on any device. No email, no OTP, nothing to reset if you forget it (a different password just starts fresh memory).</p>
     <form id="authForm">
-      <label for="username">Username</label>
-      <input id="username" autocomplete="username" required />
-      <label for="password">Password</label>
+      <label for="username" data-i18n="username">Username</label>
+      <input id="username" type="text" autocomplete="username" required />
+      <label for="password" data-i18n="password">Password</label>
       <input id="password" type="password" autocomplete="current-password" required />
-      <button type="submit">Continue</button>
+      <div id="rememberRow">
+        <input id="rememberMe" type="checkbox" checked />
+        <label for="rememberMe" data-i18n="rememberMe">Remember me on this device</label>
+      </div>
+      <button type="submit" data-i18n="continue">Continue</button>
     </form>
+    <button id="linkTelegramBtn" type="button" data-i18n="linkTelegram">Link Telegram instead</button>
   </div>
 </div>
 
@@ -131,34 +170,278 @@
   <div id="intro">
     <div class="step">
       <span class="num">1</span>
-      <span><strong>Tell it about your partner</strong> - birthday, likes, plans, gift ideas, anything worth remembering.</span>
+      <span><strong data-i18n="step1Strong">Tell it about your partner</strong><span data-i18n="step1Rest"> - birthday, likes, plans, gift ideas, anything worth remembering.</span></span>
     </div>
     <div class="step">
       <span class="num">2</span>
-      <span><strong>Come back anytime</strong> - sign in with the same username and password on any device to pick up the same memory.</span>
+      <span><strong data-i18n="step2Strong">Come back anytime</strong><span data-i18n="step2Rest"> - sign in with the same username and password on any device to pick up the same memory.</span></span>
     </div>
     <div class="step">
       <span class="num">3</span>
-      <span><strong>Ask it for help</strong> - a gift idea, a date idea - and it grounds the answer in what it actually knows about your relationship.</span>
+      <span><strong data-i18n="step3Strong">Ask it for help</strong><span data-i18n="step3Rest"> - a gift idea, a date idea - and it grounds the answer in what it actually knows about your relationship.</span></span>
     </div>
-    <button class="dismiss" onclick="document.getElementById('intro').classList.add('hidden')">Got it X</button>
+    <button class="dismiss" id="dismissIntro" data-i18n="gotIt">Got it X</button>
   </div>
 
   <div id="log"></div>
   <form id="chatForm">
-    <input id="input" autocomplete="off" placeholder="Tell me about your partner, a plan, a date idea..." />
-    <button id="send">Send</button>
+    <input id="input" autocomplete="off" data-i18n-placeholder="inputPlaceholder" placeholder="Tell me about your partner, a plan, a date idea..." />
+    <button id="send" data-i18n="send">Send</button>
   </form>
 </div>
 
 <script>
+  const I18N = {
+    en: {
+      tag: "your relationship's memory",
+      signIn: "Sign in",
+      signInDesc: "Make up any username and password. There's no account database - the same username + password always unlocks the same memory, on any device. No email, no OTP, nothing to reset if you forget it (a different password just starts fresh memory).",
+      username: "Username",
+      password: "Password",
+      rememberMe: "Remember me on this device",
+      continue: "Continue",
+      linkTelegram: "Link Telegram instead",
+      linkPrompt: "Paste the code the bot sent you after /link:",
+      linkInvalid: "That code is invalid or expired. Send /link to the bot again.",
+      signedInAs: "Signed in as {name}",
+      signedInTelegram: "Signed in via Telegram",
+      switchAccount: "Switch account",
+      step1Strong: "Tell it about your partner",
+      step1Rest: " - birthday, likes, plans, gift ideas, anything worth remembering.",
+      step2Strong: "Come back anytime",
+      step2Rest: " - sign in with the same username and password on any device to pick up the same memory.",
+      step3Strong: "Ask it for help",
+      step3Rest: " - a gift idea, a date idea - and it grounds the answer in what it actually knows about your relationship.",
+      gotIt: "Got it X",
+      inputPlaceholder: "Tell me about your partner, a plan, a date idea...",
+      send: "Send",
+      greeting: "Tell me about your partner - their birthday, likes, plans, gift ideas - I'll remember it across sessions, permanently, on Walrus.",
+      switched: "Switched. Tell me about your partner - I'll pick up wherever this key's memory left off.",
+      thinking: "thinking...",
+      networkError: "Network error, try again.",
+    },
+    vi: {
+      tag: "trí nhớ của mối quan hệ",
+      signIn: "Đăng nhập",
+      signInDesc: "Tự đặt username và mật khẩu bất kỳ. Không có cơ sở dữ liệu tài khoản - cùng username + mật khẩu luôn mở đúng bộ nhớ đó, ở bất kỳ thiết bị nào. Không cần email, không OTP, không có gì để khôi phục nếu quên (mật khẩu khác chỉ đơn giản bắt đầu bộ nhớ mới).",
+      username: "Tên đăng nhập",
+      password: "Mật khẩu",
+      rememberMe: "Ghi nhớ đăng nhập trên thiết bị này",
+      continue: "Tiếp tục",
+      linkTelegram: "Liên kết Telegram thay vào đó",
+      linkPrompt: "Dán mã bot gửi cho bạn sau khi gõ /link:",
+      linkInvalid: "Mã không hợp lệ hoặc đã hết hạn. Gõ /link lại với bot nhé.",
+      signedInAs: "Đã đăng nhập: {name}",
+      signedInTelegram: "Đã đăng nhập qua Telegram",
+      switchAccount: "Đổi tài khoản",
+      step1Strong: "Kể cho nó nghe về người yêu bạn",
+      step1Rest: " - sinh nhật, sở thích, kế hoạch, ý tưởng quà tặng, bất cứ điều gì đáng nhớ.",
+      step2Strong: "Quay lại bất cứ lúc nào",
+      step2Rest: " - đăng nhập cùng username và mật khẩu trên bất kỳ thiết bị nào để lấy lại đúng bộ nhớ.",
+      step3Strong: "Nhờ nó giúp đỡ",
+      step3Rest: " - ý tưởng quà, ý tưởng hẹn hò - câu trả lời sẽ dựa trên những gì nó thực sự biết về mối quan hệ của bạn.",
+      gotIt: "Đã hiểu X",
+      inputPlaceholder: "Kể về người yêu bạn, 1 kế hoạch, 1 ý tưởng hẹn hò...",
+      send: "Gửi",
+      greeting: "Hãy kể cho mình nghe về người yêu bạn - ngày sinh, sở thích, kế hoạch, ý tưởng quà tặng - mình sẽ nhớ mãi mãi, xuyên suốt mọi lần trò chuyện, trên Walrus.",
+      switched: "Đã đổi. Kể về người yêu bạn đi - mình sẽ tiếp tục từ nơi bộ nhớ của tài khoản này để lại.",
+      thinking: "đang suy nghĩ...",
+      networkError: "Lỗi mạng, thử lại nhé.",
+    },
+    zh: {
+      tag: "你们感情的记忆",
+      signIn: "登录",
+      signInDesc: "随便设置一个用户名和密码。没有账户数据库——相同的用户名+密码在任何设备上都能打开同一段记忆。无需邮箱，无需验证码，忘记了也没什么可重置的（换个密码只是开始一段新的记忆）。",
+      username: "用户名",
+      password: "密码",
+      rememberMe: "记住此设备的登录状态",
+      continue: "继续",
+      linkTelegram: "改为关联 Telegram",
+      linkPrompt: "粘贴 bot 在 /link 后发给你的代码：",
+      linkInvalid: "代码无效或已过期，请再次向机器人发送 /link。",
+      signedInAs: "已登录：{name}",
+      signedInTelegram: "已通过 Telegram 登录",
+      switchAccount: "切换账户",
+      step1Strong: "告诉它关于你伴侣的事",
+      step1Rest: " —— 生日、喜好、计划、礼物想法，任何值得记住的事。",
+      step2Strong: "随时回来",
+      step2Rest: " —— 在任何设备上用同样的用户名和密码登录，即可找回同一段记忆。",
+      step3Strong: "向它求助",
+      step3Rest: " —— 礼物创意、约会点子——它会基于对你们关系的真实了解来回答。",
+      gotIt: "知道了 X",
+      inputPlaceholder: "说说你的伴侣、一个计划、一个约会想法……",
+      send: "发送",
+      greeting: "告诉我关于你伴侣的事——生日、喜好、计划、礼物想法——我会把它永久记住，保存在 Walrus 上。",
+      switched: "已切换。说说你的伴侣吧——我会从这个账户的记忆继续。",
+      thinking: "思考中……",
+      networkError: "网络错误，请重试。",
+    },
+    es: {
+      tag: "la memoria de tu relación",
+      signIn: "Iniciar sesión",
+      signInDesc: "Inventa cualquier usuario y contraseña. No hay base de datos de cuentas: el mismo usuario + contraseña siempre abre la misma memoria, en cualquier dispositivo. Sin correo, sin OTP, nada que restablecer si lo olvidas (una contraseña distinta simplemente empieza una memoria nueva).",
+      username: "Usuario",
+      password: "Contraseña",
+      rememberMe: "Recordarme en este dispositivo",
+      continue: "Continuar",
+      linkTelegram: "Vincular con Telegram en su lugar",
+      linkPrompt: "Pega el código que el bot te envió tras /link:",
+      linkInvalid: "Ese código no es válido o expiró. Envía /link al bot de nuevo.",
+      signedInAs: "Sesión iniciada como {name}",
+      signedInTelegram: "Sesión iniciada vía Telegram",
+      switchAccount: "Cambiar de cuenta",
+      step1Strong: "Cuéntale sobre tu pareja",
+      step1Rest: " - cumpleaños, gustos, planes, ideas de regalos, cualquier cosa que valga la pena recordar.",
+      step2Strong: "Vuelve cuando quieras",
+      step2Rest: " - inicia sesión con el mismo usuario y contraseña en cualquier dispositivo para recuperar la misma memoria.",
+      step3Strong: "Pídele ayuda",
+      step3Rest: " - una idea de regalo, una idea de cita - y basará la respuesta en lo que realmente sabe de tu relación.",
+      gotIt: "Entendido X",
+      inputPlaceholder: "Cuéntame sobre tu pareja, un plan, una idea de cita...",
+      send: "Enviar",
+      greeting: "Cuéntame sobre tu pareja - su cumpleaños, gustos, planes, ideas de regalos - lo recordaré para siempre, en todas las conversaciones, en Walrus.",
+      switched: "Cambiado. Cuéntame sobre tu pareja - continuaré donde quedó la memoria de esta cuenta.",
+      thinking: "pensando...",
+      networkError: "Error de red, intenta de nuevo.",
+    },
+    fr: {
+      tag: "la mémoire de votre relation",
+      signIn: "Se connecter",
+      signInDesc: "Inventez un nom d'utilisateur et un mot de passe. Il n'y a pas de base de données de comptes : le même identifiant + mot de passe ouvre toujours la même mémoire, sur n'importe quel appareil. Pas d'e-mail, pas de code OTP, rien à réinitialiser si vous l'oubliez (un mot de passe différent démarre simplement une nouvelle mémoire).",
+      username: "Nom d'utilisateur",
+      password: "Mot de passe",
+      rememberMe: "Se souvenir de moi sur cet appareil",
+      continue: "Continuer",
+      linkTelegram: "Lier Telegram à la place",
+      linkPrompt: "Collez le code envoyé par le bot après /link :",
+      linkInvalid: "Ce code est invalide ou expiré. Envoyez /link au bot à nouveau.",
+      signedInAs: "Connecté en tant que {name}",
+      signedInTelegram: "Connecté via Telegram",
+      switchAccount: "Changer de compte",
+      step1Strong: "Parlez-lui de votre partenaire",
+      step1Rest: " - anniversaire, goûts, projets, idées de cadeaux, tout ce qui mérite d'être retenu.",
+      step2Strong: "Revenez quand vous voulez",
+      step2Rest: " - connectez-vous avec le même identifiant et mot de passe sur n'importe quel appareil pour retrouver la même mémoire.",
+      step3Strong: "Demandez-lui de l'aide",
+      step3Rest: " - une idée de cadeau, une idée de sortie - et la réponse s'appuiera sur ce qu'il sait vraiment de votre relation.",
+      gotIt: "Compris X",
+      inputPlaceholder: "Parlez-moi de votre partenaire, d'un projet, d'une idée de sortie...",
+      send: "Envoyer",
+      greeting: "Parlez-moi de votre partenaire - anniversaire, goûts, projets, idées de cadeaux - je m'en souviendrai pour toujours, d'une conversation à l'autre, sur Walrus.",
+      switched: "Changé. Parlez-moi de votre partenaire - je reprendrai où la mémoire de ce compte s'est arrêtée.",
+      thinking: "réflexion...",
+      networkError: "Erreur réseau, réessayez.",
+    },
+    ja: {
+      tag: "ふたりの関係の記憶",
+      signIn: "サインイン",
+      signInDesc: "好きなユーザー名とパスワードを決めてください。アカウントデータベースはありません - 同じユーザー名とパスワードなら、どの端末でも同じ記憶が開きます。メール不要、OTP不要、忘れてもリセットするものは何もありません（違うパスワードは単に新しい記憶を始めるだけです）。",
+      username: "ユーザー名",
+      password: "パスワード",
+      rememberMe: "この端末でログイン状態を保持する",
+      continue: "続ける",
+      linkTelegram: "代わりにTelegramと連携する",
+      linkPrompt: "/link の後にボットが送ったコードを貼り付けてください：",
+      linkInvalid: "コードが無効か期限切れです。もう一度ボットに /link を送ってください。",
+      signedInAs: "{name} としてサインイン中",
+      signedInTelegram: "Telegram経由でサインイン中",
+      switchAccount: "アカウントを切り替える",
+      step1Strong: "パートナーについて教えてください",
+      step1Rest: " - 誕生日、好み、予定、プレゼントのアイデアなど、覚えておきたいことは何でも。",
+      step2Strong: "いつでも戻ってきてください",
+      step2Rest: " - どの端末でも同じユーザー名とパスワードでサインインすれば、同じ記憶を呼び出せます。",
+      step3Strong: "相談してみてください",
+      step3Rest: " - プレゼントのアイデア、デートのアイデアなど - あなたたちの関係について実際に知っていることをもとに答えます。",
+      gotIt: "わかった X",
+      inputPlaceholder: "パートナーのこと、予定、デートのアイデアなどを教えてください...",
+      send: "送信",
+      greeting: "パートナーについて教えてください - 誕生日、好み、予定、プレゼントのアイデア - Walrus上に会話をまたいでずっと記憶します。",
+      switched: "切り替えました。パートナーについて教えてください - このアカウントの記憶の続きから対応します。",
+      thinking: "考え中...",
+      networkError: "通信エラーです。もう一度お試しください。",
+    },
+    ko: {
+      tag: "우리 관계의 기억",
+      signIn: "로그인",
+      signInDesc: "아무 사용자 이름과 비밀번호나 만들어 보세요. 계정 데이터베이스는 없습니다 - 같은 사용자 이름 + 비밀번호는 어떤 기기에서든 항상 같은 기억을 엽니다. 이메일도, OTP도 필요 없고, 잊어버려도 초기화할 게 없습니다 (다른 비밀번호는 그냥 새로운 기억을 시작할 뿐입니다).",
+      username: "사용자 이름",
+      password: "비밀번호",
+      rememberMe: "이 기기에서 로그인 상태 유지",
+      continue: "계속",
+      linkTelegram: "대신 텔레그램 연결하기",
+      linkPrompt: "/link 후 봇이 보낸 코드를 붙여넣으세요:",
+      linkInvalid: "코드가 잘못되었거나 만료되었습니다. 봇에게 /link를 다시 보내세요.",
+      signedInAs: "{name}(으)로 로그인됨",
+      signedInTelegram: "텔레그램으로 로그인됨",
+      switchAccount: "계정 전환",
+      step1Strong: "상대방에 대해 이야기해 주세요",
+      step1Rest: " - 생일, 취향, 계획, 선물 아이디어 등 기억할 가치가 있는 모든 것.",
+      step2Strong: "언제든지 다시 오세요",
+      step2Rest: " - 어떤 기기에서든 같은 사용자 이름과 비밀번호로 로그인하면 같은 기억을 불러옵니다.",
+      step3Strong: "도움을 요청해 보세요",
+      step3Rest: " - 선물 아이디어, 데이트 아이디어 - 실제로 알고 있는 두 사람의 관계를 바탕으로 답해드립니다.",
+      gotIt: "확인 X",
+      inputPlaceholder: "상대방, 계획, 데이트 아이디어에 대해 말해주세요...",
+      send: "보내기",
+      greeting: "상대방에 대해 이야기해 주세요 - 생일, 취향, 계획, 선물 아이디어 - Walrus에 영구적으로, 대화가 이어지는 내내 기억할게요.",
+      switched: "전환되었습니다. 상대방에 대해 이야기해 주세요 - 이 계정의 기억이 멈춘 곳부터 이어가겠습니다.",
+      thinking: "생각 중...",
+      networkError: "네트워크 오류, 다시 시도해 주세요.",
+    },
+  };
+  const LANG_NAMES = { en: "English", vi: "Tiếng Việt", zh: "中文", es: "Español", fr: "Français", ja: "日本語", ko: "한국어" };
+
+  function detectLang() {
+    try {
+      const saved = localStorage.getItem("duomind-lang");
+      if (saved && I18N[saved]) return saved;
+    } catch (e) {}
+    const nav = (navigator.language || "en").slice(0, 2).toLowerCase();
+    return I18N[nav] ? nav : "en";
+  }
+  let currentLang = detectLang();
+
+  function t(key, vars) {
+    let str = (I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key;
+    if (vars) for (const k in vars) str = str.replace("{" + k + "}", vars[k]);
+    return str;
+  }
+
+  function applyTranslations() {
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      el.textContent = t(el.getAttribute("data-i18n"));
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+      el.setAttribute("placeholder", t(el.getAttribute("data-i18n-placeholder")));
+    });
+    document.documentElement.lang = currentLang;
+  }
+
+  const langSelect = document.getElementById("langSelect");
+  Object.keys(LANG_NAMES).forEach((code) => {
+    const opt = document.createElement("option");
+    opt.value = code;
+    opt.textContent = LANG_NAMES[code];
+    if (code === currentLang) opt.selected = true;
+    langSelect.appendChild(opt);
+  });
+  langSelect.addEventListener("change", () => {
+    currentLang = langSelect.value;
+    try { localStorage.setItem("duomind-lang", currentLang); } catch (e) {}
+    applyTranslations();
+    if (!whoami.hidden) whoami.textContent = t("signedInAs", { name: currentDisplayName || "" });
+  });
+
   const authScreen = document.getElementById("authScreen");
   const appScreen = document.getElementById("appScreen");
   const authForm = document.getElementById("authForm");
   const usernameInput = document.getElementById("username");
   const passwordInput = document.getElementById("password");
+  const rememberMeInput = document.getElementById("rememberMe");
+  const linkTelegramBtn = document.getElementById("linkTelegramBtn");
   const whoami = document.getElementById("whoami");
   const logoutBtn = document.getElementById("logoutBtn");
+  const dismissIntro = document.getElementById("dismissIntro");
 
   const log = document.getElementById("log");
   const chatForm = document.getElementById("chatForm");
@@ -167,6 +450,9 @@
   const intro = document.getElementById("intro");
 
   let userId = null;
+  let currentDisplayName = "";
+
+  dismissIntro.addEventListener("click", () => intro.classList.add("hidden"));
 
   async function deriveUserId(username, password) {
     const enc = new TextEncoder().encode("duomind-v1:" + username.trim().toLowerCase() + ":" + password);
@@ -177,13 +463,14 @@
   }
 
   function showApp(username) {
+    currentDisplayName = username;
     authScreen.classList.add("hidden");
     appScreen.classList.remove("hidden");
     whoami.hidden = false;
     logoutBtn.hidden = false;
-    whoami.textContent = "Signed in as " + username;
+    whoami.textContent = t("signedInAs", { name: username });
     log.innerHTML = "";
-    addMessage("Tell me about your partner - their birthday, likes, plans, gift ideas - I'll remember it across sessions, permanently, on Walrus.", "bot");
+    addMessage(t("greeting"), "bot");
     input.focus();
   }
 
@@ -201,17 +488,52 @@
     const password = passwordInput.value;
     if (!username || !password) return;
     userId = await deriveUserId(username, password);
-    try {
-      localStorage.setItem("duomind-username", username);
-      sessionStorage.setItem("duomind-session-id", userId);
-    } catch (e2) {}
+    persistIdentity(username, userId);
     showApp(username);
+  });
+
+  function persistIdentity(displayName, id) {
+    try {
+      if (rememberMeInput.checked) {
+        localStorage.setItem("duomind-username", displayName);
+        localStorage.setItem("duomind-session-id", id);
+        sessionStorage.removeItem("duomind-session-id");
+      } else {
+        localStorage.removeItem("duomind-session-id");
+        localStorage.setItem("duomind-username", displayName);
+        sessionStorage.setItem("duomind-session-id", id);
+      }
+    } catch (e) {}
+  }
+
+  linkTelegramBtn.addEventListener("click", async () => {
+    const code = window.prompt(t("linkPrompt"));
+    if (!code || !code.trim()) return;
+    try {
+      const res = await fetch("/api/link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.userId) {
+        window.alert(data.error || t("linkInvalid"));
+        return;
+      }
+      userId = data.userId;
+      const displayName = t("signedInTelegram");
+      persistIdentity(displayName, userId);
+      showApp(displayName);
+    } catch (e) {
+      window.alert(t("linkInvalid"));
+    }
   });
 
   logoutBtn.addEventListener("click", () => {
     userId = null;
     try {
       sessionStorage.removeItem("duomind-session-id");
+      localStorage.removeItem("duomind-session-id");
     } catch (e) {}
     showAuth();
   });
@@ -221,7 +543,7 @@
     let savedSession = null;
     try {
       savedUsername = localStorage.getItem("duomind-username");
-      savedSession = sessionStorage.getItem("duomind-session-id");
+      savedSession = localStorage.getItem("duomind-session-id") || sessionStorage.getItem("duomind-session-id");
     } catch (e) {}
     if (savedUsername) usernameInput.value = savedUsername;
     if (savedUsername && savedSession) {
@@ -248,7 +570,7 @@
     sendBtn.disabled = true;
     intro.classList.add("hidden");
     addMessage(text, "user");
-    const pending = addMessage("thinking...", "bot pending");
+    const pending = addMessage(t("thinking"), "bot pending");
 
     try {
       const res = await fetch("/api/chat", {
@@ -260,13 +582,15 @@
       pending.textContent = data.reply || data.error || "(no response)";
       pending.classList.remove("pending");
     } catch (err) {
-      pending.textContent = "Network error, try again.";
+      pending.textContent = t("networkError");
       pending.classList.remove("pending");
     } finally {
       sendBtn.disabled = false;
       input.focus();
     }
   });
+
+  applyTranslations();
 </script>
 </body>
 </html>
