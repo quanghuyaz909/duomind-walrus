@@ -19,7 +19,7 @@ export const SUPPORTED_LANGS: Record<string, string> = {
 const GREETINGS: Record<string, string> = {
   en: "Great, I'll reply in English from now on. Tell me about your partner - their birthday, likes, plans, gift ideas - I'll remember it across sessions, permanently, on Walrus.",
   vi: "Được, mình sẽ trả lời bằng Tiếng Việt từ giờ. Kể cho mình nghe về người yêu bạn - sinh nhật, sở thích, kế hoạch, ý tưởng quà tặng - mình sẽ nhớ mãi mãi, xuyên suốt mọi lần trò chuyện, trên Walrus.",
-  zh: "好的，从现在起我会用中文回复。告诉我关于你伴侣的事——生日、喜好、计划、礼物想法——我会永久记住，保存在 Walrus 上。",
+  zh: "好的，从现在起我会用中文回复。告诉我关于你伴侣的事 - 生日、喜好、计划、礼物想法 - 我会永久记住，保存在 Walrus 上。",
   es: "Genial, a partir de ahora responderé en español. Cuéntame sobre tu pareja - su cumpleaños, gustos, planes, ideas de regalos - lo recordaré para siempre, en todas las conversaciones, en Walrus.",
   fr: "Parfait, je répondrai en français désormais. Parlez-moi de votre partenaire - anniversaire, goûts, projets, idées de cadeaux - je m'en souviendrai pour toujours, sur Walrus.",
   ja: "了解です、これから日本語で返信します。パートナーについて教えてください - 誕生日、好み、予定、プレゼントのアイデア - Walrus上にずっと記憶します。",
