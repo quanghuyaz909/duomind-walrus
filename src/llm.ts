@@ -1,7 +1,7 @@
 import Groq from "groq-sdk";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const model = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+const model = process.env.GROQ_MODEL ?? "qwen/qwen3.8-27b";
 
 export const SYSTEM_PROMPT = `You are TradeMind, a crypto trading journal assistant.
 You help the user reason about trades by recalling their past strategy, risk tolerance,
