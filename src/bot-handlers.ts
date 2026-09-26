@@ -61,11 +61,7 @@ export function registerBotHandlers(bot: Bot): void {
       const code = data.slice("lang:".length);
       if (!SUPPORTED_LANGS[code]) return;
       await ctx.answerCallbackQuery();
-      try {
-        await setPreferredLanguage(userId, code);
-      } catch (err) {
-        console.error("[lang] failed to save preference:", err);
-      }
+      setPreferredLanguage(userId, code);
       await ctx.reply(`${greetingFor(code)}\n\nWeb app: ${WEB_APP_URL}\n/link - ${linkHint(code)}`);
       await ctx.reply(quickActionHeader(code), { reply_markup: quickActionsKeyboard(code) });
       return;

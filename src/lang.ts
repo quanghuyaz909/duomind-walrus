@@ -1,4 +1,4 @@
-import { recallMemories, rememberFactAndWait } from "./memory.js";
+import { recallMemories, rememberFact } from "./memory.js";
 
 // Process-local cache bridging Walrus's write-lag: a preference just set via
 // setPreferredLanguage is readable from here immediately, before the
@@ -35,12 +35,17 @@ export function languageInstruction(code: string): string {
   return `Always reply in ${name} (language code: ${code}), regardless of what language the user writes in, unless they explicitly ask you to switch languages.`;
 }
 
-/** Stores the user's language choice as a durable memory fact. Waits for the
- * write to be indexed so the very next message already recalls correctly. */
-export async function setPreferredLanguage(userId: string, code: string): Promise<void> {
+/** Stores the user's language choice as a durable memory fact. Sets the
+ * in-memory cache synchronously (so the very next message in this same
+ * process already gets the right language) and lets the Walrus write happen
+ * in the background - waiting for it to fully index can take 20-30s, far
+ * longer than a serverless function/webhook response should ever block on. */
+export function setPreferredLanguage(userId: string, code: string): void {
   languageCache.set(userId, code);
   const name = SUPPORTED_LANGS[code] ?? code;
-  await rememberFactAndWait(userId, `User's preferred bot language is ${name} (code: ${code}).`);
+  rememberFact(userId, `User's preferred bot language is ${name} (code: ${code}).`).catch((err) =>
+    console.error("[lang] background write failed:", err)
+  );
 }
 
 /** Recalls the user's stored language preference, defaulting to English. */

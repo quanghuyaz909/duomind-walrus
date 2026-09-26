@@ -22,6 +22,16 @@ app.get("/", (c) => {
   }
 });
 
+app.get("/avatar.png", (c) => {
+  try {
+    const bytes = readFileSync(join(process.cwd(), "public", "avatar.png"));
+    return c.body(bytes, 200, { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" });
+  } catch (err) {
+    console.error("[static] failed to read public/avatar.png:", err);
+    return c.notFound();
+  }
+});
+
 let bot: Bot | null = null;
 function getBot(): Bot {
   if (bot) return bot;
