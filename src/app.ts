@@ -1,11 +1,23 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { Bot, webhookCallback } from "grammy";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { handleMessage } from "./chat.js";
 
 export const app = new Hono();
 
 app.use("/api/*", cors());
+
+app.get("/", (c) => {
+  try {
+    const html = readFileSync(join(process.cwd(), "public", "index.html"), "utf-8");
+    return c.html(html);
+  } catch (err) {
+    console.error("[static] failed to read public/index.html:", err);
+    return c.text("DuoMind - UI file missing", 500);
+  }
+});
 
 let bot: Bot | null = null;
 function getBot(): Bot {
