@@ -7,6 +7,7 @@ import { handleMessage } from "./chat.js";
 import { runReminderSweep } from "./reminders.js";
 import { registerBotHandlers } from "./bot-handlers.js";
 import { verifyLinkCode } from "./link.js";
+import { savePushSubscription, type PushSubscriptionJSON } from "./push.js";
 
 export const app = new Hono();
 
@@ -14,10 +15,11 @@ app.use("/api/*", cors());
 
 app.get("/", (c) => {
   try {
-    const html = readFileSync(join(process.cwd(), "public", "index.html"), "utf-8");
-    return c.html(html);
+    const html = readFileSync(join(process.cwd(), "views", "index.html"), "utf-8");
+    const withVapid = html.replace("__VAPID_PUBLIC_KEY__", process.env.VAPID_PUBLIC_KEY ?? "");
+    return c.html(withVapid);
   } catch (err) {
-    console.error("[static] failed to read public/index.html:", err);
+    console.error("[static] failed to read views/index.html:", err);
     return c.text("DuoMind - UI file missing", 500);
   }
 });
@@ -28,6 +30,16 @@ app.get("/avatar.png", (c) => {
     return c.body(bytes, 200, { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" });
   } catch (err) {
     console.error("[static] failed to read public/avatar.png:", err);
+    return c.notFound();
+  }
+});
+
+app.get("/sw.js", (c) => {
+  try {
+    const js = readFileSync(join(process.cwd(), "public", "sw.js"), "utf-8");
+    return c.body(js, 200, { "Content-Type": "application/javascript" });
+  } catch (err) {
+    console.error("[static] failed to read public/sw.js:", err);
     return c.notFound();
   }
 });
@@ -68,6 +80,20 @@ app.post("/api/chat", async (c) => {
 });
 
 app.get("/api/health", (c) => c.json({ ok: true }));
+
+app.post("/api/push-subscribe", async (c) => {
+  const body = await c.req.json<{ userId?: string; subscription?: PushSubscriptionJSON }>().catch(() => null);
+  if (!body?.userId || !body?.subscription?.endpoint) {
+    return c.json({ error: "userId and subscription are required" }, 400);
+  }
+  try {
+    await savePushSubscription(body.userId, body.subscription);
+    return c.json({ ok: true });
+  } catch (err) {
+    console.error("[push] failed to save subscription:", err);
+    return c.json({ error: "Failed to save subscription" }, 500);
+  }
+});
 
 // Links the web app to a Telegram user's exact memory namespace: the web
 // client trades a short-lived code (from the bot's /link command) for the

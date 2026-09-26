@@ -221,6 +221,7 @@
 </div>
 
 <script>
+  window.VAPID_PUBLIC_KEY = "__VAPID_PUBLIC_KEY__";
   const I18N = {
     en: {
       tag: "your relationship's memory",
@@ -234,6 +235,10 @@
       openTelegram: "Or open the Telegram bot",
       linkPrompt: "Paste the code the bot sent you after /link:",
       linkInvalid: "That code is invalid or expired. Send /link to the bot again.",
+      notifyEnabled: "Notifications on. You'll get a nudge before a birthday or anniversary.",
+      notifyDenied: "Notifications are blocked for this site - check your browser's site settings to allow them.",
+      notifyUnsupported: "This browser doesn't support notifications. On iPhone: add this page to your Home Screen first (Share -> Add to Home Screen), then try again.",
+      notifyError: "Couldn't enable notifications, try again.",
       signedInAs: "Signed in as {name}",
       signedInTelegram: "Signed in via Telegram",
       switchAccount: "Switch account",
@@ -264,6 +269,10 @@
       openTelegram: "Hoặc mở bot Telegram",
       linkPrompt: "Dán mã bot gửi cho bạn sau khi gõ /link:",
       linkInvalid: "Mã không hợp lệ hoặc đã hết hạn. Gõ /link lại với bot nhé.",
+      notifyEnabled: "Đã bật thông báo. Bạn sẽ được nhắc trước khi tới sinh nhật/kỷ niệm.",
+      notifyDenied: "Thông báo đang bị chặn cho trang này - vào cài đặt trình duyệt để cho phép.",
+      notifyUnsupported: "Trình duyệt này không hỗ trợ thông báo. Trên iPhone: thêm trang này vào Màn hình chính trước (Share -> Add to Home Screen) rồi thử lại.",
+      notifyError: "Không bật được thông báo, thử lại nhé.",
       signedInAs: "Đã đăng nhập: {name}",
       signedInTelegram: "Đã đăng nhập qua Telegram",
       switchAccount: "Đổi tài khoản",
@@ -443,6 +452,7 @@
       { icon: "💌", title: "Date idea", desc: "Something to plan together", prompt: "Suggest a date idea for us." },
       { icon: "📝", title: "Log a promise or plan", desc: "Something you agreed to do", prompt: "I promised my partner: " },
       { icon: "🧠", title: "What do you remember?", desc: "See the full picture so far", prompt: "What do you remember about my relationship so far?" },
+      { icon: "🔔", title: "Turn on notifications", desc: "Get a nudge before a birthday or anniversary", action: "notify" },
     ],
     vi: [
       { icon: "🎂", title: "Lưu ngày quan trọng", desc: "Sinh nhật, kỷ niệm, ngày hẹn đầu tiên...", prompt: "Mình muốn lưu 1 ngày quan trọng: " },
@@ -451,6 +461,7 @@
       { icon: "💌", title: "Ý tưởng hẹn hò", desc: "Kế hoạch cùng nhau", prompt: "Gợi ý 1 ý tưởng hẹn hò cho tụi mình đi." },
       { icon: "📝", title: "Lưu lời hứa / kế hoạch", desc: "Điều bạn đã hứa sẽ làm", prompt: "Mình đã hứa với người yêu: " },
       { icon: "🧠", title: "Nhớ được gì rồi?", desc: "Xem lại toàn bộ những gì đã lưu", prompt: "Bạn nhớ được gì về mối quan hệ của mình rồi?" },
+      { icon: "🔔", title: "Bật thông báo", desc: "Nhắc trước khi tới sinh nhật/kỷ niệm", action: "notify" },
     ],
     zh: [
       { icon: "🎂", title: "记录重要日期", desc: "生日、纪念日、初次约会……", prompt: "我想记录一个重要日期：" },
@@ -459,6 +470,7 @@
       { icon: "💌", title: "约会点子", desc: "一起计划的事", prompt: "给我们一个约会点子。" },
       { icon: "📝", title: "记录承诺或计划", desc: "你答应过要做的事", prompt: "我向伴侣承诺过：" },
       { icon: "🧠", title: "你记得什么？", desc: "查看目前记住的全部内容", prompt: "你目前记得我们关系里的哪些事？" },
+      { icon: "🔔", title: "开启通知", desc: "生日/纪念日前提前提醒你", action: "notify" },
     ],
     es: [
       { icon: "🎂", title: "Registrar una fecha importante", desc: "Cumpleaños, aniversario, primera cita...", prompt: "Quiero registrar una fecha importante: " },
@@ -467,6 +479,7 @@
       { icon: "💌", title: "Idea de cita", desc: "Algo para planear juntos", prompt: "Sugiéreme una idea de cita para nosotros." },
       { icon: "📝", title: "Registrar una promesa o plan", desc: "Algo que acordaste hacer", prompt: "Le prometí a mi pareja: " },
       { icon: "🧠", title: "¿Qué recuerdas?", desc: "Ver todo lo guardado hasta ahora", prompt: "¿Qué recuerdas de mi relación hasta ahora?" },
+      { icon: "🔔", title: "Activar notificaciones", desc: "Un aviso antes de un cumpleaños o aniversario", action: "notify" },
     ],
     fr: [
       { icon: "🎂", title: "Enregistrer une date importante", desc: "Anniversaire, date de rencontre...", prompt: "Je veux enregistrer une date importante : " },
@@ -475,6 +488,7 @@
       { icon: "💌", title: "Idée de sortie", desc: "Quelque chose à planifier ensemble", prompt: "Suggère-moi une idée de sortie pour nous." },
       { icon: "📝", title: "Enregistrer une promesse", desc: "Quelque chose que vous avez promis", prompt: "J'ai promis à mon/ma partenaire : " },
       { icon: "🧠", title: "Que te souviens-tu ?", desc: "Voir tout ce qui est retenu jusqu'ici", prompt: "Que te souviens-tu de notre relation jusqu'à présent ?" },
+      { icon: "🔔", title: "Activer les notifications", desc: "Une alerte avant un anniversaire", action: "notify" },
     ],
     ja: [
       { icon: "🎂", title: "大事な日を記録", desc: "誕生日、記念日、初デートなど", prompt: "大事な日を記録したいです：" },
@@ -483,6 +497,7 @@
       { icon: "💌", title: "デートのアイデア", desc: "一緒に計画すること", prompt: "私たちのデートのアイデアを提案してください。" },
       { icon: "📝", title: "約束や予定を記録", desc: "約束したこと", prompt: "パートナーに約束したこと：" },
       { icon: "🧠", title: "何を覚えていますか？", desc: "これまで記憶した内容を確認", prompt: "私たちの関係について今まで何を覚えていますか？" },
+      { icon: "🔔", title: "通知をオンにする", desc: "誕生日や記念日の前にお知らせ", action: "notify" },
     ],
     ko: [
       { icon: "🎂", title: "중요한 날짜 기록", desc: "생일, 기념일, 첫 데이트 등", prompt: "중요한 날짜를 기록하고 싶어요: " },
@@ -491,6 +506,7 @@
       { icon: "💌", title: "데이트 아이디어", desc: "함께 계획할 것", prompt: "우리를 위한 데이트 아이디어를 제안해 주세요." },
       { icon: "📝", title: "약속이나 계획 기록", desc: "하기로 약속한 것", prompt: "제 상대방에게 약속한 것: " },
       { icon: "🧠", title: "뭘 기억하고 있나요?", desc: "지금까지 기억한 전체 내용 보기", prompt: "지금까지 우리 관계에 대해 뭘 기억하고 있나요?" },
+      { icon: "🔔", title: "알림 켜기", desc: "생일/기념일 전에 미리 알려드려요", action: "notify" },
     ],
   };
 
@@ -568,6 +584,45 @@
     return "acct-" + hex.slice(0, 24);
   }
 
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+  }
+
+  async function subscribeToPush() {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      window.alert(t("notifyUnsupported"));
+      return;
+    }
+    if (!window.VAPID_PUBLIC_KEY) {
+      window.alert(t("notifyError"));
+      return;
+    }
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        window.alert(t("notifyDenied"));
+        return;
+      }
+      const reg = await navigator.serviceWorker.register("/sw.js");
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(window.VAPID_PUBLIC_KEY),
+      });
+      await fetch("/api/push-subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, subscription: sub.toJSON() }),
+      });
+      window.alert(t("notifyEnabled"));
+    } catch (err) {
+      console.error(err);
+      window.alert(t("notifyError"));
+    }
+  }
+
   function renderQuickActions() {
     quickActions.innerHTML = "";
     quickActions.classList.remove("hidden");
@@ -583,6 +638,10 @@
       card.querySelector(".qa-title").textContent = a.title;
       card.querySelector(".qa-desc").textContent = a.desc;
       card.addEventListener("click", () => {
+        if (a.action === "notify") {
+          subscribeToPush();
+          return;
+        }
         input.value = a.prompt;
         input.focus();
         input.setSelectionRange(input.value.length, input.value.length);

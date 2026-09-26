@@ -1,6 +1,7 @@
 import { Bot } from "grammy";
 import { chatComplete } from "./llm.js";
 import { recallMemories } from "./memory.js";
+import { getPushSubscription, sendPush } from "./push.js";
 
 const REMINDER_PROMPT = `Today's date is {{today}}. Here are memories about a user's relationship:
 {{memories}}
@@ -37,15 +38,14 @@ async function listNamespaces(): Promise<string[]> {
   return names;
 }
 
-function telegramChatIdFromNamespace(namespace: string): string | null {
-  const match = namespace.match(/^duomind-(\d+)$/);
+function userIdFromNamespace(namespace: string): string | null {
+  const match = namespace.match(/^duomind-(.+)$/);
   return match ? match[1] : null;
 }
 
 export async function runReminderSweep(): Promise<{ checked: number; sent: number }> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  if (!token) throw new Error("TELEGRAM_BOT_TOKEN is not set");
-  const bot = new Bot(token);
+  const bot = token ? new Bot(token) : null;
 
   const namespaces = await listNamespaces();
   const today = new Date().toISOString().slice(0, 10);
@@ -54,11 +54,10 @@ export async function runReminderSweep(): Promise<{ checked: number; sent: numbe
   let sent = 0;
 
   for (const namespace of namespaces) {
-    const chatId = telegramChatIdFromNamespace(namespace);
-    if (!chatId) continue;
+    const userId = userIdFromNamespace(namespace);
+    if (!userId) continue;
     checked++;
 
-    const userId = chatId;
     const memories = await recallMemories(userId, "birthday anniversary important date", 10);
     if (memories.length === 0) continue;
 
@@ -69,8 +68,27 @@ export async function runReminderSweep(): Promise<{ checked: number; sent: numbe
     const reply = await chatComplete([{ role: "user", content: prompt }], 200);
     if (reply.trim().toUpperCase().startsWith("NONE")) continue;
 
-    await bot.api.sendMessage(chatId, reply.trim());
-    sent++;
+    let delivered = false;
+
+    // Telegram: userId is the numeric chat id for those namespaces.
+    if (bot && /^\d+$/.test(userId)) {
+      try {
+        await bot.api.sendMessage(userId, reply.trim());
+        delivered = true;
+      } catch (err) {
+        console.error("[reminders] telegram send failed:", err);
+      }
+    }
+
+    // Web push: any user (Telegram-linked or password-derived) can also
+    // have subscribed a browser separately.
+    const sub = await getPushSubscription(userId);
+    if (sub) {
+      const ok = await sendPush(sub, "DuoMind reminder", reply.trim());
+      delivered = delivered || ok;
+    }
+
+    if (delivered) sent++;
   }
 
   return { checked, sent };
