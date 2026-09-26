@@ -37,7 +37,7 @@ front of `MemWal.create()`.
 ### Expected
 `MemWal.create()` validates `key` (and ideally `accountId`) before attempting to parse
 them, and throws something like:
-`Error: MemWalConfig.key is required (got empty string) — pass the Ed25519 delegate
+`Error: MemWalConfig.key is required (got empty string) - pass the Ed25519 delegate
 private key`
 
 ### Environment
@@ -49,10 +49,10 @@ private key`
 The [Quick Start docs](https://docs.wal.app/walrus-memory/getting-started/quick-start)
 don't state the minimum SUI (gas) / WAL (storage) a fresh wallet needs to create an
 account and write its first blob on mainnet. First-time users have no way to know
-"is a few cents enough?" without trial and error — a one-line estimate (or a link to
+"is a few cents enough?" without trial and error - a one-line estimate (or a link to
 current mainnet storage pricing) would remove that guesswork.
 
 ---
 *(Post this to https://github.com/MystenLabs/MemWal/issues once you've reproduced it
-yourself with your real credentials — the hackathon rules require it be a reproducible
+yourself with your real credentials - the hackathon rules require it be a reproducible
 issue you filed, with repro steps and environment details.)*

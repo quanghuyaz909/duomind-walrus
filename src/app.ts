@@ -15,7 +15,7 @@ function getBot(): Bot {
   bot = new Bot(token);
   bot.command("start", (ctx) =>
     ctx.reply(
-      "DuoMind here. Tell me about your partner — their birthday, likes, plans, gift ideas — I'll remember it across sessions, permanently, on Walrus."
+      "DuoMind here. Tell me about your partner - their birthday, likes, plans, gift ideas - I'll remember it across sessions, permanently, on Walrus."
     )
   );
   bot.on("message:text", async (ctx) => {
@@ -33,7 +33,7 @@ function getBot(): Bot {
   return bot;
 }
 
-// Production Telegram entrypoint (webhook mode) — used when deployed (e.g. Vercel).
+// Production Telegram entrypoint (webhook mode) - used when deployed (e.g. Vercel).
 // For local development, use `npm run dev` (long polling, src/telegram.ts) instead;
 // Telegram only allows one delivery mode active at a time per bot token.
 app.post("/api/telegram-webhook", async (c) => {

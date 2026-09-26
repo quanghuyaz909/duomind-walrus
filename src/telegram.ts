@@ -9,7 +9,7 @@ const bot = new Bot(token);
 
 bot.command("start", (ctx) =>
   ctx.reply(
-    "DuoMind here. Tell me about your partner — their birthday, likes, plans, gift ideas — I'll remember it across sessions, permanently, on Walrus."
+    "DuoMind here. Tell me about your partner - their birthday, likes, plans, gift ideas - I'll remember it across sessions, permanently, on Walrus."
   )
 );
 
