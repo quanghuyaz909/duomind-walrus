@@ -7,5 +7,5 @@ app.use("/*", serveStatic({ root: "./public" }));
 
 const port = Number(process.env.PORT ?? 3000);
 serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`TradeMind web running at http://localhost:${info.port}`);
+  console.log(`DuoMind web running at http://localhost:${info.port}`);
 });

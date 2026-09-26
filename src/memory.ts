@@ -15,13 +15,13 @@ function getMemwal(): MemWal {
     key,
     accountId,
     serverUrl: process.env.MEMWAL_SERVER_URL ?? "https://relayer.memory.walrus.xyz",
-    namespace: "trademind",
+    namespace: "duomind",
   });
   return memwal;
 }
 
 function userNamespace(userId: string) {
-  return `trademind-${userId}`;
+  return `duomind-${userId}`;
 }
 
 export async function rememberFact(userId: string, fact: string) {
@@ -42,5 +42,5 @@ export async function recallMemories(userId: string, query: string, limit = 8) {
 }
 
 export async function recallProfile(userId: string) {
-  return recallMemories(userId, "trading strategy, risk tolerance, portfolio, watchlist, lessons learned", 6);
+  return recallMemories(userId, "partner's important dates, likes, dislikes, promises, plans, gift ideas", 6);
 }

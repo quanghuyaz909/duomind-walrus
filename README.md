@@ -1,10 +1,10 @@
-# TradeMind — Crypto Trading Journal Bot with Persistent Memory
+# DuoMind — A Relationship Memory Companion for Couples
 
-A chatbot for crypto traders that remembers your strategy, risk tolerance, open
-positions, watchlist, and lessons learned — across sessions, permanently, on
+A chatbot that remembers your partner's birthday, likes, dislikes, promises, plans, and
+gift ideas — across sessions, permanently, on
 [Walrus Memory](https://memory.walrus.xyz). Built for [Walrus Sessions 8](https://thewalrussessions.wal.app/).
 
-- **LLM:** Groq (`llama-3.3-70b-versatile`) — not Claude or GPT.
+- **LLM:** Groq (`qwen/qwen3.8-27b`) — not Claude or GPT.
 - **Memory:** [`@mysten-incubation/memwal`](https://github.com/MystenLabs/MemWal), mainnet relayer.
 - **Interface:** both a web chat UI and a Telegram bot, sharing the same recall →
   generate → learn pipeline and the same Walrus Memory namespace per user.
@@ -13,14 +13,15 @@ positions, watchlist, and lessons learned — across sessions, permanently, on
 
 Every message runs a recall → generate → learn pipeline:
 
-1. **Recall** — query the user's own Walrus Memory namespace (`trademind-<telegram id>`)
-   for facts relevant to the current message, plus a standing "profile" query
-   (strategy, risk tolerance, watchlist, lessons).
+1. **Recall** — query the user's own Walrus Memory namespace (`duomind-<id>`) for facts
+   relevant to the current message, plus a standing "profile" query (important dates,
+   likes/dislikes, promises, plans, gift ideas).
 2. **Generate** — the recalled facts are injected into the system prompt so the model
-   answers grounded in what it actually remembers about *this* user, not generically.
-3. **Learn** — after replying, durable facts (entries/exits with price, strategy
-   changes, lessons) are extracted and written as encrypted blobs to Walrus in the
-   background; the user never waits on storage.
+   answers grounded in what it actually remembers about *this* user's relationship, not
+   generically.
+3. **Learn** — after replying, durable facts (a birthday, a preference, a promise, a
+   plan) are extracted and written as encrypted blobs to Walrus in the background; the
+   user never waits on storage.
 
 ## Setup
 
@@ -63,16 +64,32 @@ npm run dev
 Message your bot on Telegram. `/start` for the intro. Memory is scoped per Telegram
 user id, isolated from the web channel.
 
-### 5. Deploy the web UI for free (Vercel)
+### 5. Deploy for free, 24/7 (Vercel)
+
+Both the web UI and the Telegram bot can run on the same free Vercel deployment —
+no machine needs to stay on.
+
 ```bash
 npx vercel deploy --prod \
   -e GROQ_API_KEY=... \
   -e MEMWAL_PRIVATE_KEY=... \
-  -e MEMWAL_ACCOUNT_ID=...
+  -e MEMWAL_ACCOUNT_ID=... \
+  -e TELEGRAM_BOT_TOKEN=... \
+  -e TELEGRAM_WEBHOOK_SECRET=some-random-string
 ```
 `api/index.ts` exposes the same Hono app as a serverless function; `public/index.html`
-is served as a static file automatically. The Telegram bot needs a long-running
-process instead (a free-tier VM, or just your own machine) since it uses long polling.
+is served as a static file automatically. `/api/telegram-webhook` handles Telegram
+updates in webhook mode.
+
+Point Telegram at the deployment once, after it's live:
+```bash
+npm run set-webhook -- https://your-deployment.vercel.app/api/telegram-webhook
+```
+
+**Local development** uses long polling instead (`npm run dev`, `src/telegram.ts`) —
+Telegram only allows one delivery mode active per bot token at a time, so don't run
+both against the same token simultaneously. Switch back to local polling by calling
+`setWebhook` with an empty `url`, or just use a second bot token for local testing.
 
 ## Project structure
 
@@ -93,8 +110,8 @@ api/index.ts     Vercel serverless entrypoint for the same Hono app
 
 - Every stored fact is a real blob written to Walrus **mainnet** via the delegate key
   in `.env` — verifiable on [walruscan.com](https://walruscan.com/mainnet).
-- Memory is scoped per user (`trademind-<id>` namespace, `<id>` being a Telegram user
-  id or a random web visitor id), so users never see each other's trading data.
+- Memory is scoped per user (`duomind-<id>` namespace, `<id>` being a Telegram user id
+  or a random web visitor id), so different couples/users never see each other's data.
 - If Walrus Memory is unreachable, the bot still replies (without memory) rather than
   failing the whole conversation — recall/remember failures are caught and logged.
 

@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "trademind-web",
+      "name": "duomind-web",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "web"],
       "port": 3000

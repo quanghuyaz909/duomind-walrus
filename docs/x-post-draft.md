@@ -1,8 +1,8 @@
 # X / Twitter post draft
 
-Built TradeMind for #WalrusMemory @WalrusProtocol — a crypto trading journal bot that
-actually remembers your strategy, past trades, and lessons across sessions instead of
-forgetting everything on refresh.
+Built DuoMind for #WalrusMemory @WalrusProtocol — a chatbot that remembers your
+partner's birthday, likes, promises, and plans across sessions instead of forgetting
+everything on refresh.
 
 Recall → generate → learn, every fact stored as an encrypted blob on Walrus mainnet.
 

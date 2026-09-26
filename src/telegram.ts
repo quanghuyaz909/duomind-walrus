@@ -9,7 +9,7 @@ const bot = new Bot(token);
 
 bot.command("start", (ctx) =>
   ctx.reply(
-    "TradeMind here. Tell me about your trades, strategy, or watchlist — I'll remember it across sessions, permanently, on Walrus."
+    "DuoMind here. Tell me about your partner — their birthday, likes, plans, gift ideas — I'll remember it across sessions, permanently, on Walrus."
   )
 );
 
@@ -28,4 +28,4 @@ bot.on("message:text", async (ctx) => {
 bot.catch((err) => console.error("[bot error]", err));
 
 bot.start();
-console.log("TradeMind bot running (long polling)...");
+console.log("DuoMind bot running (long polling)...");

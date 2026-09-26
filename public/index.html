@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TradeMind</title>
+<title>DuoMind</title>
 <style>
   :root { color-scheme: light dark; }
   * { box-sizing: border-box; }
@@ -40,12 +40,12 @@
 </head>
 <body>
 <header>
-  <h1>TradeMind</h1>
-  <span>crypto trading journal &middot; remembers you on Walrus Memory</span>
+  <h1>DuoMind</h1>
+  <span>your relationship's memory &middot; remembers you on Walrus Memory</span>
 </header>
 <div id="log"></div>
 <form id="form">
-  <input id="input" autocomplete="off" placeholder="Tell me about a trade, your strategy, risk tolerance..." />
+  <input id="input" autocomplete="off" placeholder="Tell me about your partner, a plan, a date idea..." />
   <button id="send">Send</button>
 </form>
 <script>
@@ -56,10 +56,10 @@
 
   function getUserId() {
     let id = null;
-    try { id = localStorage.getItem("trademind-user-id"); } catch (e) {}
+    try { id = localStorage.getItem("duomind-user-id"); } catch (e) {}
     if (!id) {
       id = "web-" + crypto.randomUUID();
-      try { localStorage.setItem("trademind-user-id", id); } catch (e) {}
+      try { localStorage.setItem("duomind-user-id", id); } catch (e) {}
     }
     return id;
   }
@@ -74,7 +74,7 @@
     return el;
   }
 
-  addMessage("Tell me about your trades, strategy, or watchlist — I'll remember it across sessions, permanently, on Walrus.", "bot");
+  addMessage("Tell me about your partner — their birthday, likes, plans, gift ideas — I'll remember it across sessions, permanently, on Walrus.", "bot");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();

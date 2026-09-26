@@ -15,8 +15,9 @@ Deadline: **Oct 9, 2026, 2:00 PM UTC**
 - [ ] Register the project on DeepSurge (project name, description, contact, GitHub)
 - [ ] Deploy the web UI (Vercel free tier — see README §5) and/or run the Telegram bot
       somewhere it stays up (a free-tier VM, or your own machine, for the polling process)
-- [ ] Use it for real, a few days — actual trades/strategy notes, not test messages —
-      this is what "Real-World Use" is judged on
+- [ ] Use it for real, a few days — actual details about your partner/relationship,
+      not test messages, ideally with your partner or friends trying it too — this is
+      what "Real-World Use" is judged on
 - [ ] Confirm ≥10 real blobs written on mainnet before submitting — check via
       walruscan.com/mainnet with your account address
 - [ ] Get a dedicated Sui wallet address ready for the Session (for potential prize payout)
