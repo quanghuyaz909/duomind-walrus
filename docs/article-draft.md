@@ -23,7 +23,7 @@ perfect memory would:
 - It never invents history - if it has no relevant memory, it says so instead of
   guessing.
 
-Under the hood, every message runs a **recall → generate → learn** loop:
+Under the hood, every message runs a **recall -> generate -> learn** loop:
 
 1. **Recall** - query the user's own [Walrus Memory](https://memory.walrus.xyz)
    namespace for anything relevant to the current message, plus a standing "profile"

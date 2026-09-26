@@ -4,10 +4,10 @@ Deadline: **Oct 9, 2026, 2:00 PM UTC**
 
 ## Things only you can do (need your own accounts/wallet)
 
-- [ ] Get Telegram bot token from @BotFather → put in `.env`
-- [ ] Get Groq API key from console.groq.com → put in `.env`
+- [ ] Get Telegram bot token from @BotFather -> put in `.env`
+- [ ] Get Groq API key from console.groq.com -> put in `.env`
 - [ ] Create Walrus Memory account + delegate key at memory.walrus.xyz (wallet needs
-      SUI for gas + WAL for storage) → put in `.env`
+      SUI for gas + WAL for storage) -> put in `.env`
 - [ ] Run `npm run check` - confirms both Groq and Walrus Memory work, writes 1 real blob
 - [ ] Install Git for Windows (not currently installed on this machine), then:
   - [ ] `git init`, `git add -A`, `git commit`
@@ -35,7 +35,7 @@ Deadline: **Oct 9, 2026, 2:00 PM UTC**
 ## Already done
 
 - [x] Chatbot built: web chat UI + Telegram bot, shared backend
-- [x] Walrus Memory integration (recall → generate → learn pipeline)
+- [x] Walrus Memory integration (recall -> generate -> learn pipeline)
 - [x] Non-Anthropic/OpenAI model (Groq/Llama 3.3) - eligible for "Beyond the Big Two"
 - [x] Per-user memory isolation (namespace per user id)
 - [x] README with full setup instructions

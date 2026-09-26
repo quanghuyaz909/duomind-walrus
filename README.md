@@ -6,12 +6,12 @@ gift ideas - across sessions, permanently, on
 
 - **LLM:** Groq (`qwen/qwen3.8-27b`) - not Claude or GPT.
 - **Memory:** [`@mysten-incubation/memwal`](https://github.com/MystenLabs/MemWal), mainnet relayer.
-- **Interface:** both a web chat UI and a Telegram bot, sharing the same recall →
-  generate → learn pipeline and the same Walrus Memory namespace per user.
+- **Interface:** both a web chat UI and a Telegram bot, sharing the same recall ->
+  generate -> learn pipeline and the same Walrus Memory namespace per user.
 
 ## How memory works
 
-Every message runs a recall → generate → learn pipeline:
+Every message runs a recall -> generate -> learn pipeline:
 
 1. **Recall** - query the user's own Walrus Memory namespace (`duomind-<id>`) for facts
    relevant to the current message, plus a standing "profile" query (important dates,
