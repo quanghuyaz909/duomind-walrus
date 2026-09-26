@@ -69,18 +69,50 @@ error on the specific request that needed memory, not a boot-time crash.
 
 ## Evidence of real use
 
-*(fill in after a few days of real usage: number of blobs written, walruscan.com links,
-screenshots, a couple of real before/after exchanges)*
+A real session on the live deployment, word for word:
+
+> Me: "My partner's name is Mai. Her birthday is October 14th and she loves cats and
+> oolong tea."
+> Bot: "Got it! I've noted that Mai's birthday is October 14th, and that she loves
+> cats and oolong tea. I'll keep these details in mind for future reminders or gift
+> ideas."
+>
+> *(a little later, same session)*
+>
+> Me: "What do you remember about Mai?"
+> Bot: "I remember that Mai's birthday is on October 14. I also know that she loves
+> oolong tea and cats."
+
+Not a canned demo - a real blob written during that exchange, verifiable on-chain:
+[walruscan.com/mainnet/blob/R_769AkRK2bTBr_S98-OkhxQ4AzYw_FAh-jmEzQzBLM](https://walruscan.com/mainnet/blob/R_769AkRK2bTBr_S98-OkhxQ4AzYw_FAh-jmEzQzBLM)
+- `seal_encrypt_fence`, `certify_blob`, and `redeem_funds` transactions, all real, all
+  on mainnet.
 
 ## What I'd improve
 
-*(fill in: friction points found while actually using it day to day)*
+**Fire-and-forget breaks on serverless.** The learn step (extract facts -> write to
+Walrus) originally ran as a detached promise after the reply was already prepared -
+totally normal on a long-running Node server, where the event loop just keeps going
+after the response is sent. On Vercel's serverless runtime it's not safe: the
+function's execution context can be frozen the moment it returns, with no guarantee a
+detached background call ever finishes - or even starts. I only found this by actually
+using the deployed bot: I'd tell it something, and a few messages later in the *same
+session*, ask what it remembered - nothing, no matter how long I waited. The reply
+itself never depended on that background work, so everything *looked* fine until the
+next question exposed that nothing had actually been saved. Fix was to await it. A
+local dev server would never have caught this.
+
+**Verifying your own data on walruscan is non-obvious.** Searching walruscan for my
+own account/owner address shows "0 blobs found" - because the hosted relayer signs
+storage transactions from its own pooled wallet, not the end user's address. The blob
+above is real and mine, but you can only find it by blob ID, not by looking up "my"
+account. A little confusing the first time; worth a line in the docs.
 
 ## Try it
 
-- Web: *(deployed URL)*
-- Telegram: *(bot link)*
-- Source: *(GitHub repo URL)*
+- Web: [walrus-memory-chatbot.vercel.app](https://walrus-memory-chatbot.vercel.app)
+- Telegram: [@DuoMindd_bot](https://t.me/DuoMindd_bot)
+- Source: [github.com/quanghuyaz909/duomind-walrus](https://github.com/quanghuyaz909/duomind-walrus)
 
 ---
 
