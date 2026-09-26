@@ -8,6 +8,7 @@ import { runReminderSweep } from "./reminders.js";
 import { registerBotHandlers } from "./bot-handlers.js";
 import { verifyLinkCode } from "./link.js";
 import { savePushSubscription, type PushSubscriptionJSON } from "./push.js";
+import { registerAccount, loginAccount, attachTelegramRecovery, resetPasswordViaTelegram } from "./account.js";
 
 export const app = new Hono();
 
@@ -104,6 +105,93 @@ app.post("/api/link", async (c) => {
   const chatId = verifyLinkCode(body.code);
   if (!chatId) return c.json({ error: "Code is invalid or expired. Send /link to the bot again." }, 400);
   return c.json({ userId: chatId });
+});
+
+// Real accounts: username + password resolve to a stable namespace (not
+// derived from the password itself), so a password reset can repoint the
+// same username at the same memory instead of orphaning it.
+app.post("/api/register", async (c) => {
+  const body = await c.req.json<{ username?: string; password?: string }>().catch(() => null);
+  if (!body?.username || !body?.password) return c.json({ error: "username and password are required" }, 400);
+  try {
+    const result = await registerAccount(body.username, body.password);
+    if (!result.ok) return c.json({ error: "That username is taken. Try another." }, 409);
+    return c.json({ userId: result.userId });
+  } catch (err) {
+    console.error("[account] register failed:", err);
+    return c.json({ error: "Failed to create account" }, 500);
+  }
+});
+
+app.post("/api/login", async (c) => {
+  const body = await c.req.json<{ username?: string; password?: string }>().catch(() => null);
+  if (!body?.username || !body?.password) return c.json({ error: "username and password are required" }, 400);
+  try {
+    const result = await loginAccount(body.username, body.password);
+    if (!result.ok) {
+      return c.json(
+        { error: result.error === "wrong_password" ? "Wrong password." : "not_found" },
+        result.error === "wrong_password" ? 401 : 404
+      );
+    }
+    return c.json({ userId: result.userId });
+  } catch (err) {
+    console.error("[account] login failed:", err);
+    return c.json({ error: "Failed to sign in" }, 500);
+  }
+});
+
+// Attaches a Telegram chat (proven via a /link code) as a recovery method
+// for an account the caller must already be able to sign in to.
+app.post("/api/account/attach-telegram", async (c) => {
+  const body = await c.req
+    .json<{ username?: string; password?: string; code?: string }>()
+    .catch(() => null);
+  if (!body?.username || !body?.password || !body?.code) {
+    return c.json({ error: "username, password and code are required" }, 400);
+  }
+  const login = await loginAccount(body.username, body.password);
+  if (!login.ok) return c.json({ error: "Wrong username or password." }, 401);
+  const chatId = verifyLinkCode(body.code);
+  if (!chatId) return c.json({ error: "Code is invalid or expired. Send /link to the bot again." }, 400);
+  try {
+    await attachTelegramRecovery(body.username, chatId);
+    return c.json({ ok: true });
+  } catch (err) {
+    console.error("[account] attach-telegram failed:", err);
+    return c.json({ error: "Failed to attach Telegram" }, 500);
+  }
+});
+
+// Resets a password using a Telegram chat previously attached as recovery.
+// Keeps the same underlying memory namespace.
+app.post("/api/account/reset-password", async (c) => {
+  const body = await c.req
+    .json<{ username?: string; newPassword?: string; code?: string }>()
+    .catch(() => null);
+  if (!body?.username || !body?.newPassword || !body?.code) {
+    return c.json({ error: "username, newPassword and code are required" }, 400);
+  }
+  const chatId = verifyLinkCode(body.code);
+  if (!chatId) return c.json({ error: "Code is invalid or expired. Send /link to the bot again." }, 400);
+  try {
+    const result = await resetPasswordViaTelegram(body.username, chatId, body.newPassword);
+    if (!result.ok) {
+      return c.json(
+        {
+          error:
+            result.error === "no_recovery"
+              ? "This Telegram account isn't attached as a recovery method for that username."
+              : "No account with that username.",
+        },
+        400
+      );
+    }
+    return c.json({ userId: result.userId });
+  } catch (err) {
+    console.error("[account] reset-password failed:", err);
+    return c.json({ error: "Failed to reset password" }, 500);
+  }
 });
 
 // Daily sweep: checks every Telegram user's memory for birthdays/anniversaries

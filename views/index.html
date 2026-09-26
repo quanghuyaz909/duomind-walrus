@@ -32,11 +32,11 @@
   }
   header a.src:hover { color: #e6edf3; border-color: #30363d; }
   #whoami { font-size: 12px; color: #8b949e; }
-  #logoutBtn, #suggestBtn {
+  #logoutBtn, #suggestBtn, #attachRecoveryBtn {
     font-size: 12px; padding: 6px 10px; background: #161b22; color: #b7c0c9;
     border: 1px solid #1f2933; border-radius: 6px; cursor: pointer;
   }
-  #logoutBtn:hover, #suggestBtn:hover { color: #e6edf3; border-color: #30363d; }
+  #logoutBtn:hover, #suggestBtn:hover, #attachRecoveryBtn:hover { color: #e6edf3; border-color: #30363d; }
   #langSelect {
     font-size: 12px; padding: 6px 8px; background: #161b22; color: #b7c0c9;
     border: 1px solid #1f2933; border-radius: 6px; cursor: pointer;
@@ -87,6 +87,15 @@
     width: 100%; margin-top: 18px; padding: 11px; border-radius: 8px; border: none;
     background: #1f6feb; color: white; font-weight: 600; cursor: pointer; font-size: 14px;
   }
+  #authError {
+    margin: 10px 0 0; font-size: 12px; color: #f85149; line-height: 1.4;
+  }
+  #forgotPasswordBtn {
+    background: transparent !important; color: #8b949e !important; font-weight: 400 !important;
+    text-decoration: underline; margin-top: 10px !important; padding: 4px !important; font-size: 12px !important;
+    display: block; width: 100%; text-align: center;
+  }
+  #forgotPasswordBtn:hover { color: #e6edf3 !important; }
   #linkTelegramBtn {
     background: transparent !important; color: #8b949e !important; font-weight: 400 !important;
     text-decoration: underline; margin-top: 12px !important; padding: 4px !important; font-size: 12px !important;
@@ -168,6 +177,7 @@
   <div class="right">
     <span id="whoami" hidden></span>
     <button id="suggestBtn" hidden data-i18n="suggestions">💡 Suggestions</button>
+    <button id="attachRecoveryBtn" hidden data-i18n="attachRecovery">🔐 Add recovery</button>
     <button id="logoutBtn" hidden data-i18n="switchAccount">Switch account</button>
     <select id="langSelect" aria-label="Language"></select>
     <a class="src" href="https://github.com/quanghuyaz909/duomind-walrus" target="_blank" rel="noopener">Source</a>
@@ -187,8 +197,10 @@
         <input id="rememberMe" type="checkbox" checked />
         <label for="rememberMe" data-i18n="rememberMe">Remember me on this device</label>
       </div>
+      <p id="authError" hidden></p>
       <button type="submit" data-i18n="continue">Continue</button>
     </form>
+    <button id="forgotPasswordBtn" type="button" data-i18n="forgotPassword">Forgot password?</button>
     <button id="linkTelegramBtn" type="button" data-i18n="linkTelegram">Link Telegram instead</button>
     <a id="openTelegramLink" class="altlink" href="https://t.me/DuoMindd_bot" target="_blank" rel="noopener" data-i18n="openTelegram">Or open the Telegram bot</a>
   </div>
@@ -226,13 +238,23 @@
     en: {
       tag: "your relationship's memory",
       signIn: "Sign in",
-      signInDesc: "Make up any username and password. There's no account database - the same username + password always unlocks the same memory, on any device. No email, no OTP, nothing to reset if you forget it (a different password just starts fresh memory).",
+      signInDesc: "Make up any username and password - no email, no OTP. Your account (username, a hashed password, and which memory it points to) lives on Walrus, not a normal database. Forgot your password? Attach Telegram as a recovery method (once signed in) so you can reset it later.",
       username: "Username",
       password: "Password",
       rememberMe: "Remember me on this device",
       continue: "Continue",
       linkTelegram: "Link Telegram instead",
       openTelegram: "Or open the Telegram bot",
+      forgotPassword: "Forgot password?",
+      wrongPassword: "Wrong password.",
+      authError: "Something went wrong, try again.",
+      forgotUsernamePrompt: "Your username:",
+      forgotNewPasswordPrompt: "New password:",
+      forgotCodePrompt: "Get a code by sending /link to the bot on Telegram, then paste it here:",
+      passwordResetDone: "Password reset. Signing you in with it now - hit Continue.",
+      attachRecovery: "🔐 Add recovery",
+      attachPasswordPrompt: "Confirm your password for {name}:",
+      attachDone: "Telegram attached. If you ever forget your password, use \"Forgot password?\" with a fresh /link code.",
       linkPrompt: "Paste the code the bot sent you after /link:",
       linkInvalid: "That code is invalid or expired. Send /link to the bot again.",
       notifyEnabled: "Notifications on. You'll get a nudge before a birthday or anniversary.",
@@ -260,13 +282,23 @@
     vi: {
       tag: "trí nhớ của mối quan hệ",
       signIn: "Đăng nhập",
-      signInDesc: "Tự đặt username và mật khẩu bất kỳ. Không có cơ sở dữ liệu tài khoản - cùng username + mật khẩu luôn mở đúng bộ nhớ đó, ở bất kỳ thiết bị nào. Không cần email, không OTP, không có gì để khôi phục nếu quên (mật khẩu khác chỉ đơn giản bắt đầu bộ nhớ mới).",
+      signInDesc: "Tự đặt username và mật khẩu bất kỳ - không cần email, không OTP. Tài khoản (username, mật khẩu đã băm, và bộ nhớ tương ứng) được lưu trên Walrus, không phải database thường. Quên mật khẩu? Gắn Telegram làm phương thức khôi phục (sau khi đăng nhập) để có thể đặt lại sau này.",
       username: "Tên đăng nhập",
       password: "Mật khẩu",
       rememberMe: "Ghi nhớ đăng nhập trên thiết bị này",
       continue: "Tiếp tục",
       linkTelegram: "Liên kết Telegram thay vào đó",
       openTelegram: "Hoặc mở bot Telegram",
+      forgotPassword: "Quên mật khẩu?",
+      wrongPassword: "Sai mật khẩu.",
+      authError: "Có lỗi xảy ra, thử lại nhé.",
+      forgotUsernamePrompt: "Username của bạn:",
+      forgotNewPasswordPrompt: "Mật khẩu mới:",
+      forgotCodePrompt: "Lấy mã bằng cách gõ /link với bot trên Telegram, rồi dán vào đây:",
+      passwordResetDone: "Đã đặt lại mật khẩu. Bấm Tiếp tục để đăng nhập bằng mật khẩu mới.",
+      attachRecovery: "🔐 Thêm khôi phục",
+      attachPasswordPrompt: "Xác nhận mật khẩu cho {name}:",
+      attachDone: "Đã gắn Telegram. Nếu sau này quên mật khẩu, dùng \"Quên mật khẩu?\" với mã /link mới.",
       linkPrompt: "Dán mã bot gửi cho bạn sau khi gõ /link:",
       linkInvalid: "Mã không hợp lệ hoặc đã hết hạn. Gõ /link lại với bot nhé.",
       notifyEnabled: "Đã bật thông báo. Bạn sẽ được nhắc trước khi tới sinh nhật/kỷ niệm.",
@@ -559,8 +591,11 @@
   const passwordInput = document.getElementById("password");
   const rememberMeInput = document.getElementById("rememberMe");
   const linkTelegramBtn = document.getElementById("linkTelegramBtn");
+  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+  const authError = document.getElementById("authError");
   const whoami = document.getElementById("whoami");
   const suggestBtn = document.getElementById("suggestBtn");
+  const attachRecoveryBtn = document.getElementById("attachRecoveryBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   const dismissIntro = document.getElementById("dismissIntro");
 
@@ -576,13 +611,7 @@
 
   dismissIntro.addEventListener("click", () => intro.classList.add("hidden"));
 
-  async function deriveUserId(username, password) {
-    const enc = new TextEncoder().encode("duomind-v1:" + username.trim().toLowerCase() + ":" + password);
-    const hashBuf = await crypto.subtle.digest("SHA-256", enc);
-    const hashArr = Array.from(new Uint8Array(hashBuf));
-    const hex = hashArr.map((b) => b.toString(16).padStart(2, "0")).join("");
-    return "acct-" + hex.slice(0, 24);
-  }
+  let authMethod = null; // "password" | "telegram"
 
   function urlBase64ToUint8Array(base64String) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -657,6 +686,7 @@
     whoami.hidden = false;
     logoutBtn.hidden = false;
     suggestBtn.hidden = false;
+    attachRecoveryBtn.hidden = authMethod !== "password";
     whoami.textContent = t("signedInAs", { name: username });
     log.innerHTML = "";
     addMessage(t("greeting"), "bot");
@@ -676,7 +706,33 @@
     whoami.hidden = true;
     logoutBtn.hidden = true;
     suggestBtn.hidden = true;
+    attachRecoveryBtn.hidden = true;
     passwordInput.value = "";
+  }
+
+  async function signInOrRegister(username, password) {
+    authError.hidden = true;
+    const loginRes = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    if (loginRes.ok) {
+      return (await loginRes.json()).userId;
+    }
+    const loginData = await loginRes.json().catch(() => ({}));
+    if (loginRes.status === 401) {
+      throw new Error(t("wrongPassword"));
+    }
+    // Not found - this username has never been used, register it now.
+    const registerRes = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const registerData = await registerRes.json().catch(() => ({}));
+    if (!registerRes.ok) throw new Error(registerData.error || t("authError"));
+    return registerData.userId;
   }
 
   authForm.addEventListener("submit", async (e) => {
@@ -684,9 +740,67 @@
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
     if (!username || !password) return;
-    userId = await deriveUserId(username, password);
-    persistIdentity(username, userId);
-    showApp(username);
+    const submitBtn = authForm.querySelector("button[type=submit]");
+    submitBtn.disabled = true;
+    try {
+      userId = await signInOrRegister(username, password);
+      authMethod = "password";
+      persistIdentity(username, userId);
+      showApp(username);
+    } catch (err) {
+      authError.textContent = err.message || t("authError");
+      authError.hidden = false;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  forgotPasswordBtn.addEventListener("click", async () => {
+    const username = window.prompt(t("forgotUsernamePrompt"), usernameInput.value.trim());
+    if (!username || !username.trim()) return;
+    const newPassword = window.prompt(t("forgotNewPasswordPrompt"));
+    if (!newPassword) return;
+    const code = window.prompt(t("forgotCodePrompt"));
+    if (!code || !code.trim()) return;
+    try {
+      const res = await fetch("/api/account/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim(), newPassword, code: code.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.userId) {
+        window.alert(data.error || t("authError"));
+        return;
+      }
+      window.alert(t("passwordResetDone"));
+      usernameInput.value = username.trim();
+      passwordInput.value = newPassword;
+    } catch (e) {
+      window.alert(t("authError"));
+    }
+  });
+
+  attachRecoveryBtn.addEventListener("click", async () => {
+    const password = window.prompt(t("attachPasswordPrompt", { name: currentDisplayName }));
+    if (!password) return;
+    const code = window.prompt(t("linkPrompt"));
+    if (!code || !code.trim()) return;
+    try {
+      const res = await fetch("/api/account/attach-telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: currentDisplayName, password, code: code.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        window.alert(data.error || t("authError"));
+        return;
+      }
+      window.alert(t("attachDone"));
+    } catch (e) {
+      window.alert(t("authError"));
+    }
   });
 
   function persistIdentity(displayName, id) {
@@ -694,11 +808,13 @@
       if (rememberMeInput.checked) {
         localStorage.setItem("duomind-username", displayName);
         localStorage.setItem("duomind-session-id", id);
+        localStorage.setItem("duomind-auth-method", authMethod || "");
         sessionStorage.removeItem("duomind-session-id");
       } else {
         localStorage.removeItem("duomind-session-id");
         localStorage.setItem("duomind-username", displayName);
         sessionStorage.setItem("duomind-session-id", id);
+        sessionStorage.setItem("duomind-auth-method", authMethod || "");
       }
     } catch (e) {}
   }
@@ -718,6 +834,7 @@
         return;
       }
       userId = data.userId;
+      authMethod = "telegram";
       const displayName = t("signedInTelegram");
       persistIdentity(displayName, userId);
       showApp(displayName);
@@ -728,9 +845,12 @@
 
   logoutBtn.addEventListener("click", () => {
     userId = null;
+    authMethod = null;
     try {
       sessionStorage.removeItem("duomind-session-id");
+      sessionStorage.removeItem("duomind-auth-method");
       localStorage.removeItem("duomind-session-id");
+      localStorage.removeItem("duomind-auth-method");
     } catch (e) {}
     showAuth();
   });
@@ -738,13 +858,16 @@
   (function tryResumeSession() {
     let savedUsername = null;
     let savedSession = null;
+    let savedMethod = null;
     try {
       savedUsername = localStorage.getItem("duomind-username");
       savedSession = localStorage.getItem("duomind-session-id") || sessionStorage.getItem("duomind-session-id");
+      savedMethod = localStorage.getItem("duomind-auth-method") || sessionStorage.getItem("duomind-auth-method");
     } catch (e) {}
     if (savedUsername) usernameInput.value = savedUsername;
     if (savedUsername && savedSession) {
       userId = savedSession;
+      authMethod = savedMethod || "password";
       showApp(savedUsername);
     }
   })();
