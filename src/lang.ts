@@ -37,15 +37,21 @@ export function languageInstruction(code: string): string {
 
 /** Stores the user's language choice as a durable memory fact. Sets the
  * in-memory cache synchronously (so the very next message in this same
- * process already gets the right language) and lets the Walrus write happen
- * in the background - waiting for it to fully index can take 20-30s, far
- * longer than a serverless function/webhook response should ever block on. */
-export function setPreferredLanguage(userId: string, code: string): void {
+ * process already gets the right language even before the write below is
+ * confirmed) and awaits only the fast "job accepted" remember() call - not
+ * the full indexing wait (that can take 20-30s). It must still be awaited,
+ * not fired-and-forgotten: on Vercel's Node serverless runtime, work kicked
+ * off after the response is prepared can be frozen/killed once the calling
+ * handler returns, so a detached call here could silently never even reach
+ * the "accepted" stage. */
+export async function setPreferredLanguage(userId: string, code: string): Promise<void> {
   languageCache.set(userId, code);
   const name = SUPPORTED_LANGS[code] ?? code;
-  rememberFact(userId, `User's preferred bot language is ${name} (code: ${code}).`).catch((err) =>
-    console.error("[lang] background write failed:", err)
-  );
+  try {
+    await rememberFact(userId, `User's preferred bot language is ${name} (code: ${code}).`);
+  } catch (err) {
+    console.error("[lang] write failed:", err);
+  }
 }
 
 /** Recalls the user's stored language preference, defaulting to English. */

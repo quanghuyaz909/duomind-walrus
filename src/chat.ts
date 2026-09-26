@@ -32,9 +32,18 @@ export async function handleMessage(
 
   const chunks = await chatCompleteChunks(messages);
 
-  extractFacts(message)
-    .then((facts) => Promise.all(facts.map((fact) => rememberFact(userId, fact))))
-    .catch((err) => console.error("[memory] failed to store facts:", err));
+  // Awaited, not fire-and-forget: on Vercel's Node serverless runtime, work
+  // kicked off after the response is prepared can be frozen/killed once the
+  // function returns, so a detached .then() here could silently never
+  // finish writing the facts it extracted. rememberFact() itself is still
+  // the fast "accepted" call (not rememberFactAndWait), so this only adds
+  // the extraction LLM call's latency, not Walrus's full indexing time.
+  try {
+    const facts = await extractFacts(message);
+    await Promise.all(facts.map((fact) => rememberFact(userId, fact)));
+  } catch (err) {
+    console.error("[memory] failed to store facts:", err);
+  }
 
   return chunks;
 }
