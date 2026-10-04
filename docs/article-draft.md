@@ -69,6 +69,44 @@ touch memory. I switched to lazy initialization so the client is only constructe
 first actual use, and a missing/invalid credential now surfaces as a clear runtime
 error on the specific request that needed memory, not a boot-time crash.
 
+## Add Walrus Memory to your own chatbot in ~20 lines
+
+If you're new to this, here is the whole integration, copied from this project:
+
+1. Create a Walrus Memory account at [memory.walrus.xyz](https://memory.walrus.xyz) and
+   create a delegate key. You get an **account ID** and a **delegate private key**.
+   Writing on mainnet needs a little SUI (gas) and WAL (storage) in the wallet; a handful
+   of small text blobs cost well under a dollar.
+2. `npm install @mysten-incubation/memwal`
+3. Wrap it once, one namespace per end user so people never see each other's memories:
+
+```ts
+import { MemWal } from "@mysten-incubation/memwal";
+
+const memwal = MemWal.create({
+  key: process.env.MEMWAL_PRIVATE_KEY!,
+  accountId: process.env.MEMWAL_ACCOUNT_ID!,
+  serverUrl: "https://relayer.memory.walrus.xyz", // mainnet
+});
+const ns = (userId: string) => `myapp-${userId}`;
+
+export const remember = (userId: string, fact: string) => memwal.remember(fact, ns(userId));
+export const recall = async (userId: string, query: string) =>
+  (await memwal.recall({ query, namespace: ns(userId), limit: 8 })).results;
+```
+
+4. Before each model call, `recall()` and put the results in the system prompt. After the
+   reply, extract short durable facts from the user's message and `remember()` them.
+
+Three things I wish I'd known on day one:
+
+- `remember()` returns when the job is *accepted*; the fact can take ~15-30s to become
+  recallable.
+- On serverless (Vercel), `await` the `remember()` call before you return the response.
+  A detached promise can be frozen before it ever runs.
+- Construct the client lazily, so a missing key fails the one request that needs memory
+  instead of crashing your whole server at boot.
+
 ## Evidence of real use
 
 A real session on the live deployment, word for word:
@@ -115,6 +153,13 @@ take roughly 15-30 seconds to become recallable. Telling the bot something and a
 about it two seconds later can miss. For a relationship journal that's tolerable (you
 rarely ask about a fact the instant you state it), but I'd like the SDK to expose a
 cheap "is it indexed yet" signal so apps can bridge the gap instead of guessing.
+
+**One delegate key, 60 requests a minute.** The hosted relayer rate-limits per delegate
+key (60 weighted requests/min, I hit a 429 while stress-testing). Because my app uses one
+key for every end user and a chat message costs roughly 3-5 requests (two recalls plus
+writes), the whole app tops out around a dozen messages a minute. Fine for a couple's
+journal, but anyone building a busier bot will want per-user keys or a documented way to
+raise the limit.
 
 ## Try it
 
