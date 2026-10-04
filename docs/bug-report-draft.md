@@ -1,58 +1,53 @@
-# Draft GitHub issue for MystenLabs/MemWal
+# Bug report + improvement idea (for the Walrus Sessions 8 form)
 
-**Title:** `MemWal.create()` throws an unhelpful low-level error when `key` is empty/missing
+Checked on 2026-10-04 against `@mysten-incubation/memwal` 0.1.8 (latest on npm).
 
-**Body:**
+## Honest status of the SDK config-validation bug
 
-### Description
-When `MemWalConfig.key` is an empty string (e.g. an unset environment variable read
-straight into config, `process.env.MEMWAL_PRIVATE_KEY` with no `.env` value set), the
-SDK throws deep inside `hexToBytes` instead of validating config up front with a
-message that names the offending field.
+I originally planned to file `MemWal.create()` accepting bad config as a new issue. It
+is already reported upstream as
+[MystenLabs/MemWal#1041](https://github.com/MystenLabs/MemWal/issues/1041) (open, no
+maintainer reply yet), which covers `key: undefined` and `key: ""` ("hexToBytes: empty
+hex string"). Filing a duplicate would not count for the Bug Bounty, so don't.
 
-### Repro
-```ts
-import { MemWal } from "@mysten-incubation/memwal";
+One small thing #1041 does not cover - a candidate for a **comment on #1041**, not a new
+issue (reproduced, 0.1.8, Node v24.18.0, Windows 10):
 
-const memwal = MemWal.create({
-  key: "", // e.g. an unset env var
-  accountId: "some-account-id",
-});
+```js
+MemWal.create({ key: validKey, accountId: "" });        // no error
+MemWal.create({ key: validKey, accountId: undefined }); // no error
+await memwal.recall({ query: "x" });
+// -> "401 from relayer: typically wrong private key, key not registered on this
+//    account, account ID mismatch, or staging/mainnet mismatch ..."
 ```
 
-### Actual
-```
-Error: hexToBytes: empty hex string
-    at hexToBytes (.../memwal/dist/utils.js:47:15)
-    at new MemWal (.../memwal/dist/memwal.js:258:19)
-    at MemWal.create (.../memwal/dist/memwal.js:280:16)
-```
-The stack trace gives no indication that `key` (vs. `accountId`, `serverUrl`, etc.) is
-the problem, and nothing in the message names the config field. In an app that
-constructs the client at module load (a common pattern shown in the SDK's own
-quickstart example), this crashes the whole process before any request is served,
-which made the root cause non-obvious until we added our own explicit validation in
-front of `MemWal.create()`.
+An empty/undefined `accountId` is accepted at construction and only surfaces as a
+generic multi-cause 401 on first use, same failure shape as the `key` case in #1041.
+Suggested: validate `accountId` (non-empty, `0x` + hex) in `create()` too.
 
-### Expected
-`MemWal.create()` validates `key` (and ideally `accountId`) before attempting to parse
-them, and throws something like:
-`Error: MemWalConfig.key is required (got empty string) - pass the Ed25519 delegate
-private key`
+## Bug to put in the form (found while actually using it)
 
-### Environment
-- `@mysten-incubation/memwal`: 0.1.8
-- Node.js: v24.18.0
-- OS: Windows 10
+Use a real one from this project's own use if the form asks for "a bug you hit". The
+best real one: `remember()` returns as soon as the job is *accepted*, and the docs do not
+warn that on serverless platforms (Vercel Node functions) a detached `remember()` /
+background chain started after the handler returns can be frozen before it runs. In my
+bot, facts the user told it were silently never stored; replies still said "got it".
+Not an SDK defect strictly (my bug), but a documentation gap that cost real debugging
+time. Only call it a "bug" in the form if you phrase it as a docs/behavior gap.
 
-### Improvement idea (separate from the bug)
-The [Quick Start docs](https://docs.wal.app/walrus-memory/getting-started/quick-start)
-don't state the minimum SUI (gas) / WAL (storage) a fresh wallet needs to create an
-account and write its first blob on mainnet. First-time users have no way to know
-"is a few cents enough?" without trial and error - a one-line estimate (or a link to
-current mainnet storage pricing) would remove that guesswork.
+## Improvement idea (for the form)
 
----
-*(Post this to https://github.com/MystenLabs/MemWal/issues once you've reproduced it
-yourself with your real credentials - the hackathon rules require it be a reproducible
-issue you filed, with repro steps and environment details.)*
+Add a short "Serverless / write-lag" note to the Quick Start:
+
+1. `remember()` only guarantees the job is accepted; a fact can take ~15-30s to become
+   recallable, so "remember then immediately recall" can miss it.
+2. On serverless, `await` the `remember()` call (the fast accepted call) before
+   returning the response - do not leave it detached.
+3. State the rough WAL/SUI needed to create an account and write a first blob, and that
+   blobs written through the hosted relayer are held by the relayer's wallet, so
+   searching walruscan by your own address shows "0 blobs" (look up by blob ID).
+
+## Do NOT post anything yourself without checking
+
+Commenting on #1041 is public and posts from your GitHub account - your call, not
+automatic.
