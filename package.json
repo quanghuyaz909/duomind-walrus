@@ -10,6 +10,7 @@
     "web": "tsx src/web.ts",
     "web:dev": "tsx watch src/web.ts",
     "check": "tsx src/check.ts",
+    "stats": "tsx src/stats.ts",
     "set-webhook": "tsx src/set-webhook.ts"
   },
   "dependencies": {

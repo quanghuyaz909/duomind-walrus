@@ -47,7 +47,17 @@ Thể lệ có yêu cầu join Discord, và đây cũng là nơi hỏi ban tổ 
 3. Điền thông tin dự án (lấy từ bảng ở submission-pack.md): tên **DuoMind**, mô tả,
    người liên hệ, tài khoản GitHub.
 
-## 4. Dùng thật (quan trọng nhất cho tiêu chí "Real-World Use")
+## 4. Dùng thật (quan trọng nhất, và có MỘT YÊU CẦU CỨNG)
+
+**Trang DeepSurge ghi rõ: "Showcase at least 3 different users which are using the chat agent
+and storing at least 10 memories each."** Tức cần **3 người thật khác nhau, mỗi người ≥10
+memory** (người + người yêu + 1 bạn đều được). Mỗi tin nhắn có chi tiết thật thường tạo 1-3
+memory, nên mỗi người cần khoảng 8-12 tin nhắn có nội dung thật (không phải "hi", "test").
+Kiểm tra tiến độ bất cứ lúc nào bằng lệnh `npm run stats` (chỉ hiện số lượng, không hiện nội dung).
+
+Bài viết nên dài **khoảng 500-800 từ** theo trang DeepSurge ("Honest over polished").
+
+Chi tiết cách dùng:
 
 Giám khảo chấm "bằng chứng dùng thật", không chấm số lượng người. Cách làm:
 1. Đăng nhập web (tên + mật khẩu), bấm **Add recovery** để gắn Telegram (làm thật các bước).

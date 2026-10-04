@@ -16,6 +16,7 @@ or a public post, so they cannot be done for you.
 | Memory | `@mysten-incubation/memwal` 0.1.8, mainnet relayer `https://relayer.memory.walrus.xyz` |
 | Blobs on mainnet | 29 (counted 2026-09-28 via `listNamespaces()` memory_count, across 13 namespaces; requirement is 10+) |
 | Example blob | https://walruscan.com/mainnet/blob/R_769AkRK2bTBr_S98-OkhxQ4AzYw_FAh-jmEzQzBLM |
+| Dedicated Sui wallet (prize) | `0x87412d5420c4f4213cbdc3ecce36ea4238588323fae9ddfd683f20f3004ab336` |
 | Article | docs/article-draft.md (publish on Medium or Inkray, then put the link here) |
 
 Honest note on the 29: it includes my own test namespaces from building the app. Use the
@@ -32,6 +33,8 @@ Proof the rules ask for: **agent ID + blob count**. Walrus Memory account ID:
 `0x6046873c2a4815efa85c16f884b086a23f033a9c4569274cfcaec6b470fb7975`, blob count 29
 (verify the exact field wording in the form; if unsure, put the account ID and say it is
 the Walrus Memory account object ID).
+
+Session announcement post (reply or quote this one): https://x.com/WalrusProtocol/status/2101011483379585088
 
 The X post must be posted **under the Session announcement** (reply or quote it), tagging
 @WalrusProtocol with #WalrusMemory. Promo posts: not X, not r/sui, not r/walrus, not any
