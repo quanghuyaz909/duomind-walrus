@@ -734,6 +734,12 @@
     if (loginRes.status === 401) {
       throw new Error(t("wrongPassword"));
     }
+    // Only a genuine "no such user" may fall through to registration. Any other
+    // failure (rate limit, server error) must NOT, or an existing username could
+    // get a second, competing account created for it.
+    if (loginRes.status !== 404) {
+      throw new Error(loginData.error || t("authError"));
+    }
     // Not found - this username has never been used, register it now.
     const registerRes = await fetch("/api/register", {
       method: "POST",

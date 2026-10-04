@@ -125,6 +125,9 @@ app.post("/api/register", async (c) => {
     return c.json({ userId: result.userId });
   } catch (err) {
     console.error("[account] register failed:", err);
+    if ((err as { status?: number })?.status === 429) {
+      return c.json({ error: "The service is busy right now. Please try again in a minute." }, 429);
+    }
     return c.json({ error: "Failed to create account" }, 500);
   }
 });
@@ -143,6 +146,9 @@ app.post("/api/login", async (c) => {
     return c.json({ userId: result.userId });
   } catch (err) {
     console.error("[account] login failed:", err);
+    if ((err as { status?: number })?.status === 429) {
+      return c.json({ error: "The service is busy right now. Please try again in a minute." }, 429);
+    }
     return c.json({ error: "Failed to sign in" }, 500);
   }
 });

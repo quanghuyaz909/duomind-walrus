@@ -14,7 +14,7 @@ export async function handleMessage(
 
   const [relevant, profile] = await Promise.all([
     recallMemories(userId, message),
-    recallProfile(userId),
+    cachedProfile(userId),
   ]);
 
   const memoryBlock = [...profile, ...relevant]
@@ -63,6 +63,22 @@ export async function handleMessage(
 }
 
 export const MAX_MESSAGE_CHARS = 4000;
+
+// The standing "profile" recall is the same query every message, and each recall
+// costs rate-limit budget on the relayer (60 weighted req/min per key, ~8 per chat
+// message). Reuse it for a minute per user. Facts take 15-30s to become recallable
+// anyway, so a 60s-old profile is barely staler than a fresh one. Process-local and
+// best-effort: a cold start just refetches.
+const PROFILE_TTL_MS = 60_000;
+const profileCache = new Map<string, { at: number; mems: Awaited<ReturnType<typeof recallProfile>> }>();
+
+async function cachedProfile(userId: string) {
+  const hit = profileCache.get(userId);
+  if (hit && Date.now() - hit.at < PROFILE_TTL_MS) return hit.mems;
+  const mems = await recallProfile(userId);
+  profileCache.set(userId, { at: Date.now(), mems });
+  return mems;
+}
 
 const SAVE_FAILED_NOTE: Record<string, string> = {
   en: "(Heads up: I couldn't save that to memory just now because the memory service is busy. Please send it again in a minute.)",

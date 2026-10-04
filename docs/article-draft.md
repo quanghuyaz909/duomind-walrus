@@ -62,8 +62,11 @@ A live blob on mainnet: [walruscan.com/mainnet/blob/R_769AkRK2bTBr_S98-OkhxQ4AzY
   `await` it. A local dev server would never have shown this.
 - **Write-lag.** `remember()` returns when the job is accepted; a fact can take ~15-30s to
   become recallable. A cheap "is it indexed yet" signal in the SDK would help.
-- **60 requests/min per delegate key.** One key for all users, 3-5 requests per message, so
-  the app tops out near a dozen messages a minute (I hit a 429 stress-testing).
+- **60 weighted requests/min per delegate key.** I measured it: with one key for all users,
+  the whole app sustains only about 8 chat messages a minute (each message costs a couple of
+  recalls plus a write per extracted fact). Past that you get a 429, and I had to make sure the
+  bot says "I couldn't save that" instead of pretending it did. Extra delegate keys on the same
+  account raise the ceiling, but it would be nicer to have this documented up front.
 - **walruscan shows "0 blobs" for my own address**, because the hosted relayer signs from
   its own wallet. Look blobs up by ID.
 - **Groq's free tier** caps Qwen at 1000 output tokens/minute. One verbose reply got a
