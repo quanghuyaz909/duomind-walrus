@@ -1,12 +1,13 @@
 import { recallMemories, recallProfile, rememberFact } from "./memory.js";
 import { chatCompleteChunks, SYSTEM_PROMPT, todayContext } from "./llm.js";
 import { extractFacts } from "./extract.js";
-import { languageInstruction } from "./lang.js";
+import { languageInstruction, languageHint } from "./lang.js";
 
 export async function handleMessage(
   userId: string,
   message: string,
-  languageCode?: string
+  languageCode?: string,
+  opts: { soft?: boolean } = {}
 ): Promise<string[]> {
   // The relayer rejects embedding inputs over 16384 bytes with a 400, so cap what
   // we send for recall/extraction (4000 chars is at most ~12 KB even in Vietnamese).
@@ -31,7 +32,12 @@ export async function handleMessage(
     { role: "system", content: todayContext() },
     { role: "system", content: contextPrompt },
   ];
-  if (languageCode) messages.push({ role: "system", content: languageInstruction(languageCode) });
+  if (languageCode) {
+    messages.push({
+      role: "system",
+      content: opts.soft ? languageHint(languageCode) : languageInstruction(languageCode),
+    });
+  }
   messages.push({ role: "user", content: message });
 
   const chunks = await chatCompleteChunks(messages);

@@ -700,8 +700,16 @@
     whoami.textContent = t("signedInAs", { name: username });
     log.innerHTML = "";
     addMessage(t("greeting"), "bot");
+    const past = loadHistory();
+    past.forEach((m) => addMessage(m.text, m.role));
     log.appendChild(quickActions);
     renderQuickActions();
+    if (past.length) {
+      // Returning user with an ongoing conversation: don't crowd it with onboarding.
+      intro.classList.add("hidden");
+      quickActions.classList.add("hidden");
+    }
+    log.scrollTop = log.scrollHeight;
     input.focus();
   }
 
@@ -892,6 +900,23 @@
     }
   })();
 
+  // Chat transcript is kept in this browser only (localStorage, keyed by account),
+  // so coming back on the same device shows the earlier conversation. The bot's
+  // actual memory lives on Walrus and works on any device; only this on-screen
+  // history is device-local. Capped so it can't grow without bound.
+  var HISTORY_MAX = 80;
+  function historyKey() { return "duomind-history-" + userId; }
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(historyKey()) || "[]"); } catch (e) { return []; }
+  }
+  function pushHistory(role, text) {
+    try {
+      const h = loadHistory();
+      h.push({ role, text });
+      localStorage.setItem(historyKey(), JSON.stringify(h.slice(-HISTORY_MAX)));
+    } catch (e) {}
+  }
+
   function addMessage(text, role) {
     const el = document.createElement("div");
     el.className = "msg " + role;
@@ -917,7 +942,7 @@
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, message: text }),
+        body: JSON.stringify({ userId, message: text, lang: currentLang }),
       });
       const data = await res.json();
       if (data.error) {
@@ -927,6 +952,8 @@
         for (let i = 1; i < data.replies.length; i++) {
           addMessage(data.replies[i], "bot");
         }
+        pushHistory("user", text);
+        data.replies.forEach((r) => pushHistory("bot", r));
       } else {
         pending.textContent = "(no response)";
       }

@@ -7,6 +7,7 @@ import { handleMessage } from "./chat.js";
 import { runReminderSweep } from "./reminders.js";
 import { registerBotHandlers } from "./bot-handlers.js";
 import { verifyLinkCode } from "./link.js";
+import { SUPPORTED_LANGS } from "./lang.js";
 import { savePushSubscription, type PushSubscriptionJSON } from "./push.js";
 import { registerAccount, loginAccount, attachTelegramRecovery, resetPasswordViaTelegram } from "./account.js";
 
@@ -67,7 +68,7 @@ app.post("/api/telegram-webhook", async (c) => {
 });
 
 app.post("/api/chat", async (c) => {
-  const body = await c.req.json<{ userId?: unknown; message?: unknown }>().catch(() => null);
+  const body = await c.req.json<{ userId?: unknown; message?: unknown; lang?: unknown }>().catch(() => null);
   if (typeof body?.userId !== "string" || !body.userId || typeof body.message !== "string" || !body.message.trim()) {
     return c.json({ error: "userId and message are required (both strings)" }, 400);
   }
@@ -75,7 +76,11 @@ app.post("/api/chat", async (c) => {
     return c.json({ error: "Message is too long. Please keep it under a few paragraphs." }, 413);
   }
   try {
-    const replies = await handleMessage(body.userId, body.message);
+    const lang =
+      typeof body.lang === "string" && Object.prototype.hasOwnProperty.call(SUPPORTED_LANGS, body.lang)
+        ? body.lang
+        : undefined;
+    const replies = await handleMessage(body.userId, body.message, lang, { soft: true });
     return c.json({ replies });
   } catch (err) {
     console.error(err);

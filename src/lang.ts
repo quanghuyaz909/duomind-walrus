@@ -35,6 +35,14 @@ export function languageInstruction(code: string): string {
   return `Always reply in ${name} (language code: ${code}), regardless of what language the user writes in, unless they explicitly ask you to switch languages.`;
 }
 
+/** A soft hint for clients (the web UI) that know the interface language but not
+ * whether the user deliberately chose it: reply in the language the user writes in,
+ * and only fall back to this one when the message has no clear language (emoji, numbers). */
+export function languageHint(code: string): string {
+  const name = SUPPORTED_LANGS[code] ?? "English";
+  return `Reply in the same language the user writes in. If their message has no clear language (for example only emoji, numbers or symbols), reply in ${name} (language code: ${code}).`;
+}
+
 /** Stores the user's language choice as a durable memory fact. Sets the
  * in-memory cache synchronously (so the very next message in this same
  * process already gets the right language even before the write below is
