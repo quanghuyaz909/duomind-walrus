@@ -32,8 +32,10 @@ Under the hood, every message runs a **recall -> generate -> learn** loop:
    model (Groq, Qwen) answers, so the response is grounded in *this* user's actual
    relationship, not a template.
 3. **Learn** - after replying, the bot extracts durable facts from the message (a
-   birthday, a preference, a promise, a plan) and writes them as encrypted blobs to
-   Walrus in the background. The user never waits on storage.
+   birthday, a preference, a promise, a plan) and writes them to Walrus as encrypted
+   blobs. The write is the fast "job accepted" call, so the user waits for the
+   extraction, not for Walrus to finish indexing (that part takes a while longer, see
+   below).
 
 ## Before / after
 
@@ -107,6 +109,12 @@ own account/owner address shows "0 blobs found" - because the hosted relayer sig
 storage transactions from its own pooled wallet, not the end user's address. The blob
 above is real and mine, but you can only find it by blob ID, not by looking up "my"
 account. A little confusing the first time; worth a line in the docs.
+
+**Write-lag is real.** `remember()` only guarantees the job was accepted; a fact can
+take roughly 15-30 seconds to become recallable. Telling the bot something and asking
+about it two seconds later can miss. For a relationship journal that's tolerable (you
+rarely ask about a fact the instant you state it), but I'd like the SDK to expose a
+cheap "is it indexed yet" signal so apps can bridge the gap instead of guessing.
 
 ## Try it
 
