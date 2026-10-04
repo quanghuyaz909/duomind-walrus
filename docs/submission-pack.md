@@ -26,7 +26,10 @@ app yourself for the next few days so the count of *real* use is clearly above 1
 
 1. **DeepSurge** - register + project page: https://www.deepsurge.xyz/hackathons/c0141a4a-21be-4009-bc63-7c168608c849
 2. **Airtable submission form (submit once)**: https://airtable.com/appoDAKpC74UOqoDa/shro5iVzzjoWfZlPK
-3. Promo-only / bug-bounty-only (no chatbot): https://walform.wal.app/f?formId=0x38a736485349b133604c1caf286d669b4b774d16f0a26120ce839cad245baeef
+3. Only needed if NOT submitting the full chatbot (a full submission puts the promo link in
+   the Airtable form instead):
+   - Bug-bounty-only: https://walform.wal.app/f?formId=0x38a736485349b133604c1caf286d669b4b774d16f0a26120ce839cad245baeef
+   - Promo-only: https://walform.wal.app/f?formId=0x09b022796f9cb7ce24247e3097c5c8ae2b414317c90c8aeb6ce335e7caf31ff5
 4. Discord (required): https://discord.com/invite/walrusprotocol
 
 Proof the rules ask for: **agent ID + blob count**. Walrus Memory account ID:

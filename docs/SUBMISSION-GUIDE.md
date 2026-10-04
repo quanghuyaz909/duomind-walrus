@@ -152,5 +152,8 @@ Sau khi nộp: mở lại trang dự án trên DeepSurge **bằng cửa sổ ẩ
 ## Link tham khảo
 - Chi tiết: https://www.deepsurge.xyz/hackathons/c0141a4a-21be-4009-bc63-7c168608c849
 - Thể lệ: https://thewalrussessions.wal.app/
-- Form riêng Promo / Bug Bounty: https://walform.wal.app/f?formId=0x38a736485349b133604c1caf286d669b4b774d16f0a26120ce839cad245baeef
+- Form **chỉ Bug Bounty** (không làm chatbot): https://walform.wal.app/f?formId=0x38a736485349b133604c1caf286d669b4b774d16f0a26120ce839cad245baeef
+- Form **chỉ Promo** (không làm chatbot): https://walform.wal.app/f?formId=0x09b022796f9cb7ce24247e3097c5c8ae2b414317c90c8aeb6ce335e7caf31ff5
+- Nếu nộp chatbot đầy đủ thì **không cần 2 form riêng này**: link bài Promo dán thẳng vào form Airtable.
+- Ví dụ chatbot chính thức để tham khảo: https://docs.wal.app/walrus-memory/examples/chatbot
 - Repo MemWal: https://github.com/MystenLabs/MemWal
