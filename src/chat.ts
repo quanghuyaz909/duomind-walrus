@@ -8,6 +8,10 @@ export async function handleMessage(
   message: string,
   languageCode?: string
 ): Promise<string[]> {
+  // The relayer rejects embedding inputs over 16384 bytes with a 400, so cap what
+  // we send for recall/extraction (4000 chars is at most ~12 KB even in Vietnamese).
+  message = message.slice(0, MAX_MESSAGE_CHARS);
+
   const [relevant, profile] = await Promise.all([
     recallMemories(userId, message),
     recallProfile(userId),
@@ -38,12 +42,29 @@ export async function handleMessage(
   // finish writing the facts it extracted. rememberFact() itself is still
   // the fast "accepted" call (not rememberFactAndWait), so this only adds
   // the extraction LLM call's latency, not Walrus's full indexing time.
+  let saveFailed = false;
   try {
     const facts = await extractFacts(message);
     await Promise.all(facts.map((fact) => rememberFact(userId, fact)));
   } catch (err) {
+    saveFailed = true;
     console.error("[memory] failed to store facts:", err);
+  }
+
+  // The reply was generated before we tried to save, so it may already say "noted".
+  // If the save then failed (usually the relayer's 60 requests/min limit), say so
+  // instead of leaving the user believing something was remembered that wasn't.
+  if (saveFailed && chunks.length > 0) {
+    const last = chunks.length - 1;
+    chunks[last] += "\n\n" + (SAVE_FAILED_NOTE[languageCode ?? ""] ?? SAVE_FAILED_NOTE.en);
   }
 
   return chunks;
 }
+
+export const MAX_MESSAGE_CHARS = 4000;
+
+const SAVE_FAILED_NOTE: Record<string, string> = {
+  en: "(Heads up: I couldn't save that to memory just now because the memory service is busy. Please send it again in a minute.)",
+  vi: "(Lưu ý: mình chưa lưu được thông tin này vào bộ nhớ vì dịch vụ đang bận. Bạn gửi lại giúp mình sau khoảng 1 phút nhé.)",
+};

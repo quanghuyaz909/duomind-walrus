@@ -35,7 +35,12 @@ async function replyWithHandledMessage(ctx: any, userId: string, text: string, l
     if (chunks.every((c) => !c)) await ctx.reply("(no response)");
   } catch (err) {
     console.error(err);
-    await ctx.reply("Something went wrong reaching memory or the model. Try again in a bit.");
+    const busy = (err as { status?: number })?.status === 429;
+    await ctx.reply(
+      busy
+        ? "The memory service is busy right now. Please try again in a minute."
+        : "Something went wrong reaching memory or the model. Try again in a bit."
+    );
   }
 }
 

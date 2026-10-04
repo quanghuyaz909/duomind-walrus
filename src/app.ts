@@ -67,15 +67,21 @@ app.post("/api/telegram-webhook", async (c) => {
 });
 
 app.post("/api/chat", async (c) => {
-  const body = await c.req.json<{ userId?: string; message?: string }>().catch(() => null);
-  if (!body?.userId || !body?.message) {
-    return c.json({ error: "userId and message are required" }, 400);
+  const body = await c.req.json<{ userId?: unknown; message?: unknown }>().catch(() => null);
+  if (typeof body?.userId !== "string" || !body.userId || typeof body.message !== "string" || !body.message.trim()) {
+    return c.json({ error: "userId and message are required (both strings)" }, 400);
+  }
+  if (body.message.length > 20000) {
+    return c.json({ error: "Message is too long. Please keep it under a few paragraphs." }, 413);
   }
   try {
     const replies = await handleMessage(body.userId, body.message);
     return c.json({ replies });
   } catch (err) {
     console.error(err);
+    if ((err as { status?: number })?.status === 429) {
+      return c.json({ error: "The memory service is busy right now. Please try again in a minute." }, 429);
+    }
     return c.json({ error: "Failed to reach memory or the model." }, 500);
   }
 });
