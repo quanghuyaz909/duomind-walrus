@@ -21,6 +21,22 @@ or a public post, so they cannot be done for you.
 Honest note on the 29: it includes my own test namespaces from building the app. Use the
 app yourself for the next few days so the count of *real* use is clearly above 10 too.
 
+## Where to submit (verified against the official rules page on 2026-10-04)
+
+1. **DeepSurge** - register + project page: https://www.deepsurge.xyz/hackathons/c0141a4a-21be-4009-bc63-7c168608c849
+2. **Airtable submission form (submit once)**: https://airtable.com/appoDAKpC74UOqoDa/shro5iVzzjoWfZlPK
+3. Promo-only / bug-bounty-only (no chatbot): https://walform.wal.app/f?formId=0x38a736485349b133604c1caf286d669b4b774d16f0a26120ce839cad245baeef
+4. Discord (required): https://discord.com/invite/walrusprotocol
+
+Proof the rules ask for: **agent ID + blob count**. Walrus Memory account ID:
+`0x6046873c2a4815efa85c16f884b086a23f033a9c4569274cfcaec6b470fb7975`, blob count 29
+(verify the exact field wording in the form; if unsure, put the account ID and say it is
+the Walrus Memory account object ID).
+
+The X post must be posted **under the Session announcement** (reply or quote it), tagging
+@WalrusProtocol with #WalrusMemory. Promo posts: not X, not r/sui, not r/walrus, not any
+Walrus/Sui channel.
+
 ## Form answers
 
 **Chatbot description:**
